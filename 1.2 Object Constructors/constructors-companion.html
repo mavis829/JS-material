@@ -1,0 +1,1584 @@
+<title>Object Constructors</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Serif:wght@500;600&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+
+<style>
+:root{
+  --paper:#EBEEF1; --surface:#FFFFFF; --surface-2:#F4F6F8; --line:#D4DAE1; --line-2:#BDC6D0;
+  --ink:#141C26; --ink-2:#4B5966; --ink-3:#7C8B99;
+  --data:#1A5FB4; --data-bg:#E4EDF9;      /* instance / own properties */
+  --proc:#1F6E52; --proc-bg:#E1F0EA;      /* Player.prototype */
+  --deep:#6A3D9A; --deep-bg:#EEE6F7;      /* Object.prototype */
+  --this:#AF4038; --this-bg:#FAE6E4;      /* this keyword / errors */
+  --warn:#8A6410; --warn-bg:#FAF0DA;      /* lesson notes */
+  --shadow:0 1px 2px rgba(20,28,38,.05), 0 10px 26px -14px rgba(20,28,38,.22);
+  --cbg:#111922; --cfg:#D3DDE6; --cdim:#67798A;
+  --ckey:#7FB0E3; --cstr:#94CB88; --cnum:#E0B56B; --cfn:#C4A2E0;
+  --fs-1:clamp(1.85rem,1.25rem + 2.3vw,2.75rem);
+  --fs-2:clamp(1.15rem,1rem + .6vw,1.45rem);
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --paper:#0D131A; --surface:#161F29; --surface-2:#1C2731; --line:#28343F; --line-2:#36444F;
+    --ink:#E7EDF3; --ink-2:#A4B2BF; --ink-3:#75838F;
+    --data:#6EA9EA; --data-bg:#122238;
+    --proc:#5CC195; --proc-bg:#10291F;
+    --deep:#B892E0; --deep-bg:#241833;
+    --this:#E58077; --this-bg:#331B18;
+    --warn:#D6A54A; --warn-bg:#2E2411;
+    --shadow:0 1px 2px rgba(0,0,0,.45), 0 12px 30px -16px rgba(0,0,0,.8);
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#0D131A; --surface:#161F29; --surface-2:#1C2731; --line:#28343F; --line-2:#36444F;
+  --ink:#E7EDF3; --ink-2:#A4B2BF; --ink-3:#75838F;
+  --data:#6EA9EA; --data-bg:#122238;
+  --proc:#5CC195; --proc-bg:#10291F;
+  --deep:#B892E0; --deep-bg:#241833;
+  --this:#E58077; --this-bg:#331B18;
+  --warn:#D6A54A; --warn-bg:#2E2411;
+  --shadow:0 1px 2px rgba(0,0,0,.45), 0 12px 30px -16px rgba(0,0,0,.8);
+}
+
+*{box-sizing:border-box}
+body{margin:0; background:var(--paper); color:var(--ink);
+  font-family:"IBM Plex Sans","Helvetica Neue",Arial,sans-serif; font-size:16px; line-height:1.62;
+  -webkit-font-smoothing:antialiased}
+.wrap{max-width:940px; margin:0 auto; padding-inline:20px; padding-block:38px 60px}
+code,.mono{font-family:"IBM Plex Mono",ui-monospace,monospace}
+
+.masthead{display:flex; flex-direction:column; gap:12px; margin-bottom:26px}
+.src{font-family:"IBM Plex Mono",monospace; font-size:.72rem; letter-spacing:.1em;
+  text-transform:uppercase; color:var(--ink-3)}
+.src a{color:var(--data); text-decoration:none; border-bottom:1px solid currentColor}
+h1{font-family:"IBM Plex Serif",Georgia,serif; font-weight:600; font-size:var(--fs-1);
+  line-height:1.06; letter-spacing:-.015em; margin:0; text-wrap:balance}
+.lede{margin:0; max-width:60ch; color:var(--ink-2)}
+
+.overview{background:var(--surface); border:1px solid var(--line); border-radius:12px;
+  padding:20px 22px; box-shadow:var(--shadow); margin-bottom:28px}
+.overview h2{font-family:"IBM Plex Mono",monospace; font-size:.74rem; letter-spacing:.12em;
+  text-transform:uppercase; color:var(--ink-3); margin:0 0 14px; font-weight:600}
+.ov-list{list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:10px}
+.ov-list li{display:flex; gap:12px; align-items:baseline}
+.ov-list .n{font-family:"IBM Plex Mono",monospace; font-size:.74rem; font-weight:600;
+  color:var(--ink-3); flex:none; width:1.4em}
+
+.nav{position:sticky; top:0; z-index:30; background:var(--paper);
+  border-bottom:1px solid var(--line); margin-bottom:28px;
+  display:flex; gap:6px; overflow-x:auto; padding-block:10px; scrollbar-width:thin}
+.nav a{font-family:"IBM Plex Mono",monospace; font-size:.74rem; font-weight:500; white-space:nowrap;
+  color:var(--ink-2); text-decoration:none; padding:5px 10px; border-radius:6px;
+  border:1px solid transparent}
+.nav a:hover{background:var(--surface); border-color:var(--line); color:var(--ink)}
+
+.lesson{background:var(--surface); border:1px solid var(--line); border-radius:12px;
+  padding:26px 24px; box-shadow:var(--shadow); margin-bottom:24px; scroll-margin-top:64px}
+.sec-head{display:flex; gap:12px; align-items:baseline; margin-bottom:8px}
+.sec-num{font-family:"IBM Plex Mono",monospace; font-size:.76rem; font-weight:600;
+  color:var(--ink-3); flex:none; padding-top:.2em}
+h2{font-family:"IBM Plex Serif",Georgia,serif; font-weight:600; font-size:var(--fs-2);
+  line-height:1.2; margin:0; text-wrap:balance; letter-spacing:-.01em}
+h3{font-family:"IBM Plex Mono",monospace; font-size:.75rem; font-weight:600;
+  letter-spacing:.1em; text-transform:uppercase; color:var(--ink-3); margin:22px 0 10px}
+.lesson > p{color:var(--ink-2); max-width:64ch; margin:0 0 16px}
+.lesson > p:last-child{margin-bottom:0}
+.term{font-weight:600; color:var(--ink); border-bottom:2px solid var(--data-bg); padding-bottom:1px}
+.icode{font-family:"IBM Plex Mono",monospace; font-size:.86em; background:var(--surface-2);
+  border:1px solid var(--line); padding:1px 5px; border-radius:5px; color:var(--ink)}
+
+.code{background:var(--cbg); color:var(--cfg); border:1px solid var(--line-2); border-radius:9px;
+  padding:15px 17px; overflow-x:auto; font-family:"IBM Plex Mono",monospace;
+  font-size:.82rem; line-height:1.72; white-space:pre; margin:0}
+.code .k{color:var(--ckey)} .code .s{color:var(--cstr)} .code .n{color:var(--cnum)}
+.code .c{color:var(--cdim)} .code .f{color:var(--cfn)}
+.tok{border-radius:4px; padding:1px 4px; margin:0 -2px; font-weight:600; transition:background .18s,color .18s}
+.tok-this{background:rgba(229,128,119,.16); color:#EF9289}
+.tok-this.lit{background:#E58077; color:#111922}
+
+/* ---------- chain visualiser ---------- */
+.chain{display:flex; flex-direction:column; align-items:stretch; gap:0}
+.node{border:2px solid var(--line-2); border-radius:10px; background:var(--surface-2);
+  overflow:hidden; transition:border-color .25s, box-shadow .25s, opacity .25s}
+.node-head{padding:8px 13px; border-bottom:1px solid var(--line); background:var(--surface);
+  font-family:"IBM Plex Mono",monospace; font-size:.79rem; font-weight:600;
+  display:flex; justify-content:space-between; align-items:center; gap:10px; flex-wrap:wrap}
+.node-head .role{font-size:.66rem; letter-spacing:.07em; text-transform:uppercase;
+  color:var(--ink-3); font-weight:600}
+.node-body{padding:9px 13px; display:flex; flex-direction:column; gap:5px}
+.node.l1{border-color:var(--data)} .node.l1 .node-head{background:var(--data-bg); color:var(--data)}
+.node.l2{border-color:var(--proc)} .node.l2 .node-head{background:var(--proc-bg); color:var(--proc)}
+.node.l3{border-color:var(--deep)} .node.l3 .node-head{background:var(--deep-bg); color:var(--deep)}
+.node.dim{opacity:.4}
+.node.looking{box-shadow:0 0 0 4px var(--warn-bg); border-color:var(--warn)}
+.node.found{box-shadow:0 0 0 4px var(--proc-bg); border-color:var(--proc)}
+.node.missed{opacity:.45}
+.link{display:flex; flex-direction:column; align-items:center; gap:2px; padding:7px 0;
+  font-family:"IBM Plex Mono",monospace; font-size:.68rem; color:var(--ink-3)}
+.link .arw{font-size:1.1rem; line-height:1; color:var(--line-2); transition:color .25s}
+.link.active .arw{color:var(--warn)}
+.link.active{color:var(--warn)}
+.nul{font-family:"IBM Plex Mono",monospace; font-size:.8rem; font-weight:600; color:var(--ink-3);
+  text-align:center; padding:9px; border:2px dashed var(--line-2); border-radius:10px;
+  background:var(--surface-2)}
+.pk{display:flex; justify-content:space-between; gap:12px; font-family:"IBM Plex Mono",monospace;
+  font-size:.79rem; border-radius:5px; padding:3px 7px; margin-inline:-7px;
+  transition:background .2s, color .2s}
+.pk .pn{color:var(--ink-2)} .pk .pv{color:var(--ink-3); font-style:italic; font-size:.92em}
+.pk.hit{background:var(--proc); color:#fff}
+.pk.hit .pn,.pk.hit .pv{color:#fff; font-weight:600}
+
+/* ---------- object card ---------- */
+.obj{border:1.5px solid var(--line-2); border-radius:10px; overflow:hidden; background:var(--surface-2)}
+.obj-head{padding:8px 13px; border-bottom:1px solid var(--line); background:var(--surface);
+  font-family:"IBM Plex Mono",monospace; font-size:.78rem; font-weight:600;
+  display:flex; justify-content:space-between; align-items:center; gap:8px}
+.obj-body{padding:10px 13px; display:flex; flex-direction:column; gap:6px}
+.kv{display:flex; justify-content:space-between; align-items:baseline; gap:12px;
+  font-family:"IBM Plex Mono",monospace; font-size:.8rem; border-radius:5px;
+  padding:3px 7px; margin-inline:-7px}
+.kv .k{color:var(--ink-3)} .kv .v{font-weight:600; font-variant-numeric:tabular-nums}
+.kv.prop{background:var(--data-bg)} .kv.prop .k{color:var(--data)}
+.kv.meth{background:var(--proc-bg)} .kv.meth .k{color:var(--proc)}
+.kv.meth .v{color:var(--proc); font-weight:500; font-style:italic}
+@keyframes pop{0%{transform:scale(1)}35%{transform:scale(1.28)}100%{transform:scale(1)}}
+.v.pop{animation:pop .4s ease-out; color:var(--this)}
+@media (prefers-reduced-motion:reduce){ .v.pop{animation:none} *{transition-duration:.01ms !important} }
+
+.legend{display:flex; gap:14px; flex-wrap:wrap; font-size:.76rem; color:var(--ink-2); margin-top:10px}
+.legend span{display:flex; align-items:center; gap:6px}
+.swatch{width:11px; height:11px; border-radius:3px; flex:none}
+.swatch.d{background:var(--data)} .swatch.p{background:var(--proc)} .swatch.v{background:var(--deep)}
+
+/* ---------- console ---------- */
+.console{background:var(--cbg); border:1px solid var(--line-2); border-radius:9px;
+  padding:12px 15px; font-family:"IBM Plex Mono",monospace; font-size:.79rem;
+  line-height:1.7; min-height:6.5em; display:flex; flex-direction:column-reverse;
+  gap:2px; overflow:hidden}
+.console .ln{display:block; color:var(--cfg); word-break:break-word}
+.console .ln .pr{color:var(--cdim)}
+.console .ln.out{color:var(--cstr)}
+.console .ln.note{color:var(--cnum); font-size:.94em}
+.console .ln.undef{color:#EF9289}
+.console .ln.step{color:#B892E0; font-size:.94em}
+
+button{font:inherit; cursor:pointer}
+.row{display:flex; flex-wrap:wrap; gap:8px; align-items:center}
+.run{font-family:"IBM Plex Mono",monospace; font-size:.79rem; font-weight:500;
+  background:var(--surface); color:var(--ink); border:1.5px solid var(--line-2);
+  border-radius:7px; padding:8px 12px; transition:transform .12s,border-color .15s,background .15s}
+.run:hover:not(:disabled){border-color:var(--ink-3); background:var(--surface-2)}
+.run:active{transform:translateY(1px)}
+.run:disabled{opacity:.5; cursor:default}
+.run.d{border-color:var(--data); color:var(--data)}
+.run.p{border-color:var(--proc); color:var(--proc)}
+.run.v{border-color:var(--deep); color:var(--deep)}
+.run.t{border-color:var(--this); color:var(--this)}
+.reset{background:none; border:none; color:var(--ink-3); font-size:.78rem;
+  text-decoration:underline; text-underline-offset:3px; padding:8px 4px}
+.reset:hover{color:var(--ink)}
+:focus-visible{outline:2.5px solid var(--data); outline-offset:2px; border-radius:6px}
+
+.split{display:grid; grid-template-columns:1fr 1fr; gap:14px; align-items:start}
+.split.wide{grid-template-columns:1.15fr .85fr}
+.split.chainy{grid-template-columns:.95fr 1.05fr}
+@media (max-width:700px){ .split,.split.wide,.split.chainy{grid-template-columns:1fr} }
+
+.lnote{background:var(--warn-bg); border:1px solid var(--warn); border-left-width:4px;
+  border-radius:8px; padding:15px 17px; margin-top:20px}
+.lnote h4{font-family:"IBM Plex Mono",monospace; font-size:.74rem; letter-spacing:.08em;
+  text-transform:uppercase; color:var(--warn); margin:0 0 8px; font-weight:600}
+.lnote p{margin:0 0 9px; color:var(--ink-2); font-size:.92rem; max-width:62ch}
+.lnote p:last-child{margin-bottom:0}
+.lnote .icode{background:var(--surface); border-color:var(--warn)}
+.lnote.bad{background:var(--this-bg); border-color:var(--this)}
+.lnote.bad h4{color:var(--this)}
+.lnote.bad .icode{border-color:var(--this)}
+
+.tbl-wrap{overflow-x:auto; border:1px solid var(--line); border-radius:9px}
+table{border-collapse:collapse; width:100%; font-size:.86rem; min-width:460px}
+th,td{text-align:left; padding:10px 14px; border-bottom:1px solid var(--line); vertical-align:top}
+tr:last-child td{border-bottom:none}
+th{font-family:"IBM Plex Mono",monospace; font-size:.71rem; letter-spacing:.09em;
+  text-transform:uppercase; color:var(--ink-3); font-weight:600; background:var(--surface-2)}
+td.d{color:var(--data); font-weight:600} td.p{color:var(--proc); font-weight:600}
+td .mono{font-size:.9em}
+
+/* ---------- assignment article cards ---------- */
+.article{border:1px solid var(--line); border-left:4px solid var(--data); border-radius:9px;
+  background:var(--surface-2); padding:18px 20px; margin-bottom:14px}
+.article:nth-of-type(2){border-left-color:var(--proc)}
+.article:nth-of-type(3){border-left-color:var(--deep)}
+.art-top{display:flex; gap:10px; align-items:baseline; flex-wrap:wrap; margin-bottom:4px}
+.art-src{font-family:"IBM Plex Mono",monospace; font-size:.68rem; letter-spacing:.08em;
+  text-transform:uppercase; color:var(--ink-3); border:1px solid var(--line-2);
+  border-radius:999px; padding:1px 9px}
+.article h4{font-family:"IBM Plex Serif",Georgia,serif; font-size:1.05rem; font-weight:600;
+  margin:0; flex:1 1 100%}
+.article h4 a{color:var(--ink); text-decoration:none; border-bottom:1.5px solid var(--data)}
+.article h4 a:hover{color:var(--data)}
+.art-why{margin:6px 0 12px; font-size:.9rem; color:var(--ink-2); font-style:italic; max-width:64ch}
+.article ul{margin:0; padding-left:20px; display:flex; flex-direction:column; gap:7px}
+.article li{font-size:.9rem; color:var(--ink-2); max-width:64ch}
+.article li b{color:var(--ink)}
+.article li code{font-family:"IBM Plex Mono",monospace; font-size:.88em; background:var(--surface);
+  border:1px solid var(--line); padding:0 4px; border-radius:4px; color:var(--ink)}
+
+/* ---------- this-situations ---------- */
+.sit{display:flex; flex-direction:column; gap:8px}
+.sitbtn{text-align:left; background:var(--surface); border:1.5px solid var(--line);
+  border-radius:8px; padding:10px 13px; width:100%; display:flex; gap:11px; align-items:baseline;
+  transition:border-color .15s, background .15s}
+.sitbtn:hover{border-color:var(--ink-3); background:var(--surface-2)}
+.sitbtn[aria-pressed="true"]{border-color:var(--this); background:var(--this-bg)}
+.sitbtn .sn{font-family:"IBM Plex Mono",monospace; font-size:.72rem; color:var(--ink-3); flex:none}
+.sitbtn[aria-pressed="true"] .sn{color:var(--this)}
+.sitbtn .st{font-size:.88rem; font-weight:500}
+.sitpanel{border:1px solid var(--line-2); border-radius:9px; background:var(--surface-2); padding:16px 18px}
+.sitpanel h5{font-family:"IBM Plex Mono",monospace; font-size:.72rem; letter-spacing:.08em;
+  text-transform:uppercase; color:var(--ink-3); margin:0 0 8px; font-weight:600}
+.sitpanel .rule{font-size:.95rem; margin:0 0 12px; color:var(--ink)}
+.sitpanel .rule b{color:var(--this)}
+.sitpanel .pit{font-size:.88rem; color:var(--ink-2); margin:12px 0 0; border-left:3px solid var(--warn);
+  padding-left:12px}
+.sitpanel .pit b{color:var(--warn)}
+
+
+/* ---------- sticking points ---------- */
+.stick{border:1px solid var(--line); border-left:4px solid var(--this); border-radius:10px;
+  background:var(--surface-2); padding:18px 20px; margin-bottom:18px}
+.stick-top{display:flex; gap:10px; align-items:baseline; flex-wrap:wrap; margin-bottom:6px}
+.qref{font-family:"IBM Plex Mono",monospace; font-size:.68rem; letter-spacing:.06em;
+  color:var(--this); border:1px solid var(--this); border-radius:999px; padding:1px 9px; flex:none}
+.stick h4{font-family:"IBM Plex Serif",Georgia,serif; font-size:1.08rem; font-weight:600;
+  margin:0; flex:1 1 100%}
+.stick > p{color:var(--ink-2); font-size:.93rem; margin:10px 0; max-width:64ch}
+.plain{background:var(--proc-bg); border-left:3px solid var(--proc);
+  padding:12px 15px; border-radius:0 8px 8px 0; margin:14px 0; font-size:.95rem; max-width:64ch}
+.plain b{color:var(--proc)}
+.wrongs{list-style:none; padding:0; margin:12px 0 0; display:flex; flex-direction:column; gap:7px; font-size:.89rem}
+.wrongs li{display:flex; gap:10px; color:var(--ink-2); max-width:64ch}
+.wrongs .mk{flex:none; font-weight:700; font-family:"IBM Plex Mono",monospace}
+.wrongs .x{color:var(--this)} .wrongs .ok{color:var(--proc)}
+.wrongs code{font-family:"IBM Plex Mono",monospace; font-size:.88em; background:var(--surface);
+  border:1px solid var(--line); padding:0 4px; border-radius:4px}
+.ruler{display:flex; gap:0; align-items:stretch; overflow-x:auto; margin:14px 0 0}
+.rung{flex:1 1 0; min-width:118px; border:2px solid var(--line-2); background:var(--surface);
+  padding:10px 11px; text-align:center; font-family:"IBM Plex Mono",monospace; font-size:.74rem;
+  cursor:pointer; transition:border-color .18s, background .18s}
+.rung:first-child{border-radius:9px 0 0 9px} .rung:last-child{border-radius:0 9px 9px 0}
+.rung + .rung{border-left-width:0}
+.rung .pos{display:block; font-size:.64rem; color:var(--ink-3); letter-spacing:.07em; margin-bottom:3px}
+.rung[aria-pressed="true"]{background:var(--warn-bg); border-color:var(--warn); position:relative; z-index:1}
+.rung.endstop{border-style:dashed; color:var(--this)}
+.stepper{display:flex; flex-direction:column; gap:7px; margin-top:12px}
+.stepbtn{text-align:left; background:var(--surface); border:1.5px solid var(--line);
+  border-radius:8px; padding:9px 13px; font-size:.84rem; display:flex; gap:11px; align-items:baseline;
+  font-family:"IBM Plex Mono",monospace; color:var(--ink); transition:border-color .15s, background .15s}
+.stepbtn .num{font-size:.72rem; color:var(--ink-3); flex:none; width:1.2em}
+.stepbtn:disabled{opacity:.4; cursor:default}
+.stepbtn.done{border-color:var(--proc); background:var(--proc-bg)}
+.stepbtn.done .num{color:var(--proc)}
+.stepbtn.next{border-color:var(--warn)}
+.linkbar{font-family:"IBM Plex Mono",monospace; font-size:.72rem; text-align:center;
+  padding:8px; border:2px dashed var(--line-2); border-radius:8px; color:var(--ink-3);
+  margin:8px 0; transition:all .25s}
+.linkbar.on{border-style:solid; border-color:var(--proc); color:var(--proc); background:var(--proc-bg)}
+
+
+/* ---------- call/apply breakdown ---------- */
+.bit{display:flex; gap:14px; align-items:baseline; padding:9px 13px; border-left:3px solid var(--line-2);
+  background:var(--surface); border-radius:0 7px 7px 0; margin-bottom:7px}
+.bit .bc{font-family:"IBM Plex Mono",monospace; font-weight:600; font-size:.83rem; flex:none; min-width:7.5em}
+.bit .bd{font-size:.88rem; color:var(--ink-2)}
+.bit.b1{border-left-color:var(--proc)} .bit.b1 .bc{color:var(--proc)}
+.bit.b2{border-left-color:var(--this)} .bit.b2 .bc{color:var(--this)}
+.bit.b3{border-left-color:var(--data)} .bit.b3 .bc{color:var(--data)}
+.twobox{border:2px solid var(--line-2); border-radius:9px; overflow:hidden; background:var(--surface)}
+.twobox h6{margin:0; padding:8px 13px; font-family:"IBM Plex Mono",monospace; font-size:.71rem;
+  letter-spacing:.07em; text-transform:uppercase; font-weight:600; border-bottom:1px solid var(--line)}
+.twobox.yes{border-color:var(--proc)} .twobox.yes h6{background:var(--proc-bg); color:var(--proc)}
+.twobox.no{border-color:var(--this)} .twobox.no h6{background:var(--this-bg); color:var(--this)}
+.twobox .code{border:0; border-radius:0}
+.readers{display:flex; gap:9px; flex-wrap:wrap}
+.reader{border:2px solid var(--line); border-radius:9px; background:var(--surface); padding:10px 14px;
+  font-family:"IBM Plex Mono",monospace; font-size:.8rem; color:var(--ink); transition:all .16s}
+.reader[aria-pressed="true"]{border-color:var(--proc); background:var(--proc-bg); color:var(--proc); font-weight:600}
+.speech{border:2px dashed var(--line-2); border-radius:9px; background:var(--surface);
+  padding:14px 16px; font-family:"IBM Plex Mono",monospace; font-size:.86rem; text-align:center;
+  margin:12px 0}
+.speech .blank{background:var(--warn-bg); color:var(--warn); border-bottom:2px solid var(--warn);
+  padding:1px 8px; border-radius:4px; font-weight:700}
+
+/* ---------- qa ---------- */
+.qa{border:1px solid var(--line); border-radius:9px; overflow:hidden; background:var(--surface-2)}
+.qa + .qa{margin-top:10px}
+.qa summary{padding:13px 16px; cursor:pointer; font-weight:500; list-style:none;
+  display:flex; gap:11px; align-items:baseline}
+.qa summary::-webkit-details-marker{display:none}
+.qa summary::before{content:"\25B8"; color:var(--data); flex:none; transition:transform .18s}
+.qa[open] summary::before{transform:rotate(90deg)}
+.qa summary:hover{background:var(--surface)}
+.qa .ans{padding:0 16px 15px 40px; color:var(--ink-2); font-size:.93rem; margin:0}
+.qa .ans b{color:var(--ink)}
+.qa .ans .code{display:block; margin:15px 0 3px; padding:16px 18px; font-size:.84rem;
+  line-height:1.85; overflow-x:auto; border-radius:9px}
+
+/* ---------- quiz ---------- */
+.scorebar{display:flex; gap:16px; align-items:center; flex-wrap:wrap;
+  background:var(--surface-2); border:1px solid var(--line); border-radius:9px;
+  padding:13px 16px; margin-bottom:16px; position:sticky; top:52px; z-index:20}
+.scorebar .stat{font-family:"IBM Plex Mono",monospace; font-size:.78rem; color:var(--ink-2); white-space:nowrap}
+.scorebar .stat b{color:var(--ink); font-size:1rem; font-variant-numeric:tabular-nums}
+.bar{flex:1 1 130px; min-width:110px; height:7px; border-radius:999px; background:var(--line); overflow:hidden}
+.bar i{display:block; height:100%; width:0; background:var(--proc); transition:width .35s ease}
+.quiz{display:flex; flex-direction:column; gap:14px}
+.q{border:1px solid var(--line); border-radius:10px; background:var(--surface-2);
+  padding:16px 18px; transition:border-color .2s}
+.q.ok{border-color:var(--proc)} .q.no{border-color:var(--this)}
+.q-top{display:flex; gap:10px; align-items:baseline; margin-bottom:9px; flex-wrap:wrap}
+.q-n{font-family:"IBM Plex Mono",monospace; font-size:.75rem; font-weight:600; color:var(--ink-3); flex:none}
+.q-sec{font-family:"IBM Plex Mono",monospace; font-size:.66rem; letter-spacing:.07em;
+  color:var(--ink-3); border:1px solid var(--line-2); border-radius:999px;
+  padding:1px 9px; margin-left:auto; white-space:nowrap}
+.q-text{font-weight:500; flex:1 1 100%; max-width:62ch; margin:0}
+.q .code{margin:15px 0 3px; padding:16px 18px; font-size:.84rem; line-height:1.85}
+.opts{display:flex; flex-direction:column; gap:7px; margin-top:12px}
+.opt{text-align:left; background:var(--surface); border:1.5px solid var(--line);
+  border-radius:8px; padding:9px 13px; font-size:.88rem; color:var(--ink);
+  display:flex; gap:11px; align-items:baseline; width:100%;
+  transition:border-color .15s, background .15s}
+.opt .mk{font-family:"IBM Plex Mono",monospace; font-size:.74rem; font-weight:600;
+  color:var(--ink-3); flex:none; width:1.1em}
+.opt .tx{flex:1}
+.opt .tx code{font-family:"IBM Plex Mono",monospace; font-size:.88em; background:var(--surface-2);
+  border:1px solid var(--line); padding:0 4px; border-radius:4px}
+.opt:hover:not(:disabled){border-color:var(--ink-3); background:var(--surface-2)}
+.opt:disabled{cursor:default; opacity:.72}
+.opt.correct{border-color:var(--proc); background:var(--proc-bg); opacity:1}
+.opt.correct .mk{color:var(--proc)}
+.opt.wrong{border-color:var(--this); background:var(--this-bg); opacity:1}
+.opt.wrong .mk{color:var(--this)}
+.q-exp{display:none; margin:13px 0 0; font-size:.88rem; color:var(--ink-2);
+  border-left:3px solid var(--line-2); padding-left:13px; max-width:64ch}
+.q.answered .q-exp{display:block}
+.q.ok .q-exp{border-left-color:var(--proc)} .q.no .q-exp{border-left-color:var(--this)}
+.q-exp b{color:var(--ink)}
+.q-exp code{font-family:"IBM Plex Mono",monospace; font-size:.88em; background:var(--surface);
+  border:1px solid var(--line); padding:0 4px; border-radius:4px}
+.result{display:none; margin-top:16px; border:1px solid var(--line-2); border-left-width:4px;
+  border-radius:9px; padding:16px 18px; background:var(--surface-2)}
+.result.show{display:block}
+.result h4{font-family:"IBM Plex Serif",Georgia,serif; font-size:1.05rem; margin:0 0 7px; font-weight:600}
+.result p{margin:0; color:var(--ink-2); font-size:.9rem; max-width:62ch}
+.result.good{border-left-color:var(--proc)} .result.good h4{color:var(--proc)}
+.result.mid{border-left-color:var(--warn)} .result.mid h4{color:var(--warn)}
+.result.low{border-left-color:var(--this)} .result.low h4{color:var(--this)}
+
+.foot{margin-top:30px; padding-top:18px; border-top:1px solid var(--line);
+  font-size:.8rem; color:var(--ink-3); display:flex; flex-direction:column; gap:5px}
+.foot a{color:var(--data)}
+</style>
+
+<div class="wrap">
+
+  <header class="masthead">
+    <div class="src">Study companion · The Odin Project · <a href="https://www.theodinproject.com/lessons/node-path-javascript-object-constructors">node-path-javascript</a></div>
+    <h1>Object Constructors</h1>
+    <p class="lede">Creating duplicates (called <b>instances</b>) of objects, and using existing types as a base for new ones through <b>inheritance</b>. The lesson's own sections and code, made runnable — plus the three assignment articles distilled.</p>
+  </header>
+
+  <div class="overview">
+    <h2>Lesson overview</h2>
+    <ul class="ov-list">
+      <li><span class="n">01</span><span>Instantiating objects using <b>constructors</b>.</span></li>
+      <li><span class="n">02</span><span>What a <b>prototype</b> is and how it can be used.</span></li>
+      <li><span class="n">03</span><span><b>Prototypal inheritance</b>.</span></li>
+      <li><span class="n">04</span><span>Basic <b>do's and don'ts</b> of prototypal inheritance.</span></li>
+      <li><span class="n">05</span><span>How the <b><span class="icode">this</span></b> keyword behaves in different situations.</span></li>
+    </ul>
+  </div>
+
+  <nav class="nav">
+    <a href="#s1">Constructors</a>
+    <a href="#s2">The prototype</a>
+    <a href="#s3">Prototypal inheritance</a>
+    <a href="#s4">Do's &amp; don'ts</a>
+    <a href="#s5">Assignment</a>
+    <a href="#s6">this in 6 situations</a>
+    <a href="#s7">Knowledge check</a>
+    <a href="#s8">Test yourself</a>
+    <a href="#s9">Sticking points</a>
+  </nav>
+
+  <!-- ============ §1 CONSTRUCTORS ============ -->
+  <section class="lesson" id="s1">
+    <div class="sec-head"><span class="sec-num">&sect;1</span><h2>Object constructors</h2></div>
+    <p>Manually typing out the contents of all of our objects with object literals is not always feasible. When you have a specific type of object you need to make multiple of, a better way is an <span class="term">object constructor</span> — which is really just a function.</p>
+
+    <div class="split wide">
+      <pre class="code"><span class="k">function</span> <span class="f">Player</span>(name, marker) {
+  <span class="tok tok-this" data-t1>this</span>.name = name;
+  <span class="tok tok-this" data-t1>this</span>.marker = marker;
+  <span class="tok tok-this" data-t1>this</span>.sayName = <span class="k">function</span>() {
+    console.<span class="f">log</span>(<span class="tok tok-this" data-t1>this</span>.name);
+  };
+}
+
+<span class="k">const</span> player1 = <span class="k">new</span> <span class="f">Player</span>(<span class="s">"steve"</span>, <span class="s">"X"</span>);
+<span class="k">const</span> player2 = <span class="k">new</span> <span class="f">Player</span>(<span class="s">"also steve"</span>, <span class="s">"O"</span>);</pre>
+      <div>
+        <div class="obj"><div class="obj-head"><span id="i1name">player1</span></div>
+          <div class="obj-body" id="i1body"></div></div>
+        <div class="legend"><span><i class="swatch d"></i>own properties</span><span><i class="swatch p"></i>own methods</span></div>
+      </div>
+    </div>
+
+    <h3>What <span style="text-transform:none" class="icode">new</span> actually does</h3>
+    <p>The only difference from an ordinary function is that you call it with the keyword <span class="icode">new</span>. This is <b>not</b> the same as calling <span class="icode">Player("steve", "X")</span> without it. When we call a function with <span class="icode">new</span>, four things happen:</p>
+
+    <div class="row">
+      <button class="run d" id="newRun">new Player("steve", "X")</button>
+      <button class="run t" id="noNewRun">Player("steve", "X") &mdash; without new</button>
+      <button class="reset" data-clear="c1">Clear</button>
+    </div>
+    <div class="console" id="c1" style="margin-top:12px"></div>
+
+    <div class="lnote">
+      <h4>Lesson note — Safeguarding constructors</h4>
+      <p>Since constructors can be called without <span class="icode">new</span> by mistake — which causes hard-to-track errors, as it won't do all the new-object and <span class="icode">this</span>-binding work — we should safeguard them. The <span class="icode">new.target</span> meta-property throws an error if <span class="icode">Player</span> is called without <span class="icode">new</span>:</p>
+      <pre class="code" style="margin-top:10px"><span class="k">function</span> <span class="f">Player</span>(name, marker) {
+  <span class="k">if</span> (!<span class="k">new</span>.target) {
+    <span class="k">throw</span> <span class="f">Error</span>(<span class="s">"You must use the 'new' operator to call the constructor"</span>);
+  }
+  <span class="tok tok-this">this</span>.name = name;
+  <span class="tok tok-this">this</span>.marker = marker;
+}</pre>
+      <div class="row" style="margin-top:10px">
+        <button class="run" id="guardRun">call the safeguarded Player without new</button>
+      </div>
+    </div>
+
+    <h3>Exercise — the Book constructor</h3>
+    <p>Write a constructor for making "Book" objects with the book's <b>title</b>, <b>author</b>, the <b>number of pages</b>, and <b>whether or not you have read it</b>. Put a function <span class="icode">info()</span> into the constructor that reports the book info. We will revisit this in the next project.</p>
+    <pre class="code">console.<span class="f">log</span>(theHobbit.<span class="f">info</span>()); <span class="c">// "The Hobbit by J.R.R. Tolkien, 295 pages, not read yet"</span></pre>
+    <div class="row" style="margin-top:12px">
+      <button class="run p" id="bookRun">run a working Book constructor</button>
+      <button class="run" id="bookShow">show one way to write it</button>
+      <button class="reset" data-clear="cb">Clear</button>
+    </div>
+    <div class="console" id="cb" style="margin-top:12px"></div>
+
+    <div class="lnote">
+      <h4>Lesson note — console.log vs return</h4>
+      <p>We use examples of functions that call <span class="icode">console.log()</span> for demonstration, but instead of making functions directly log things, it's generally <b>more sensible to make them return values</b>. That way you can pass the values wherever you wish without being tied to whatever that function does — you may not always want to log the value.</p>
+    </div>
+  </section>
+
+  <!-- ============ §2 THE PROTOTYPE ============ -->
+  <section class="lesson" id="s2">
+    <div class="sec-head"><span class="sec-num">&sect;2</span><h2>The prototype</h2></div>
+    <p>All objects in JavaScript can be linked to another object, called their <span class="term">prototype</span> (also written <span class="icode">[[Prototype]]</span>). If a property or method is not found on the object itself, JavaScript looks for it in the <span class="icode">[[Prototype]]</span>. The lesson breaks this into three sentences:</p>
+
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>#</th><th>The sentence</th><th>What it means here</th></tr></thead>
+        <tbody>
+          <tr><td class="d">1</td><td>All objects in JavaScript have a <span class="mono">[[Prototype]]</span></td><td><span class="mono">player1</span> and <span class="mono">player2</span> both have one. Check it with <span class="mono">Object.getPrototypeOf()</span>.</td></tr>
+          <tr><td class="d">2</td><td>The <span class="mono">[[Prototype]]</span> is another object</td><td>It can have properties and functions, just like <span class="mono">player1</span> does. Here it is the object at <span class="mono">Player.prototype</span>.</td></tr>
+          <tr><td class="d">3</td><td>&hellip;that the original object inherits from, and has access to all of its methods and properties</td><td>Anything defined on <span class="mono">Player.prototype</span> is available to <b>every</b> Player object.</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <pre class="code" style="margin-top:16px">Object.<span class="f">getPrototypeOf</span>(player1) === Player.prototype; <span class="c">// returns true</span>
+Object.<span class="f">getPrototypeOf</span>(player2) === Player.prototype; <span class="c">// returns true</span>
+
+<span class="c">// defining a function 'on' the prototype</span>
+Player.prototype.sayHello = <span class="k">function</span>() {
+  console.<span class="f">log</span>(<span class="s">"Hello, I'm a player!"</span>);
+};
+player1.<span class="f">sayHello</span>(); <span class="c">// logs "Hello, I'm a player!"</span>
+player2.<span class="f">sayHello</span>(); <span class="c">// logs "Hello, I'm a player!"</span></pre>
+
+    <div class="row" style="margin-top:12px">
+      <button class="run d" data-c2="eq1">Object.getPrototypeOf(player1) === Player.prototype</button>
+      <button class="run p" data-c2="define">Player.prototype.sayHello = function() {…}</button>
+      <button class="run p" data-c2="hello1">player1.sayHello()</button>
+      <button class="run p" data-c2="hello2">player2.sayHello()</button>
+      <button class="reset" data-clear="c2">Clear</button>
+    </div>
+    <div class="console" id="c2" style="margin-top:12px"></div>
+    <p style="margin-top:14px">Define <span class="icode">sayHello</span> once and <b>both</b> players can use it — you never touched either player object. That is the point of the prototype.</p>
+
+    <div class="lnote">
+      <h4>Lesson note — .__proto__</h4>
+      <p>In some docs or codebases you may see <span class="icode">.__proto__</span> used to get or set an object's <span class="icode">[[Prototype]]</span> instead of <span class="icode">Object.getPrototypeOf()</span> / <span class="icode">Object.setPrototypeOf()</span>. This is for historical reasons — <span class="icode">.__proto__</span> is <b>non-standard and deprecated</b>, so it is not recommended.</p>
+    </div>
+
+    <div class="lnote">
+      <h4>Lesson note — Object.getPrototypeOf() vs .prototype</h4>
+      <p>A common cause of confusion. <span class="icode">.prototype</span> is a property <b>of functions</b> that determines what a new instance's <span class="icode">[[Prototype]]</span> will be set to when the function is called with <span class="icode">new</span>.</p>
+      <p><span class="icode">.prototype</span> is <b>not</b> for accessing an object's <span class="icode">[[Prototype]]</span> — that is what <span class="icode">Object.getPrototypeOf()</span> is for.</p>
+    </div>
+  </section>
+
+  <!-- ============ §3 PROTOTYPAL INHERITANCE ============ -->
+  <section class="lesson" id="s3">
+    <div class="sec-head"><span class="sec-num">&sect;3</span><h2>Prototypal inheritance</h2></div>
+    <p>What use is an object's <span class="icode">[[Prototype]]</span>? The lesson narrows it to two reasons:</p>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>#</th><th>Reason</th></tr></thead>
+        <tbody>
+          <tr><td class="d">1</td><td><b>To save memory.</b> Defining every property and function on every object takes a lot of memory, especially with many common functions and many created objects. Defining them on a centralized, shared object saves memory.</td></tr>
+          <tr><td class="d">2</td><td><b>To share and reuse behaviour</b> through JavaScript's prototypal inheritance mechanism — letting <span class="mono">player1</span> and <span class="mono">player2</span> access functions like <span class="mono">.sayHello</span> defined on <span class="mono">Player.prototype</span>.</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>Walk the chain yourself</h3>
+    <p>An object inherits from its <span class="icode">[[Prototype]]</span>, which in turn inherits from <b>its</b> <span class="icode">[[Prototype]]</span>, and so on — forming a <span class="term">chain</span>. Pick a lookup below and watch JavaScript traverse it, exactly as the lesson narrates.</p>
+
+    <div class="split chainy">
+      <div class="chain">
+        <div class="node l1" id="n0">
+          <div class="node-head"><span>player1</span><span class="role">the object</span></div>
+          <div class="node-body" id="n0b"></div>
+        </div>
+        <div class="link" id="k0"><span class="arw">&#8595;</span><span>[[Prototype]]</span></div>
+        <div class="node l2" id="n1">
+          <div class="node-head"><span>Player.prototype</span><span class="role">prototype</span></div>
+          <div class="node-body" id="n1b"></div>
+        </div>
+        <div class="link" id="k1"><span class="arw">&#8595;</span><span>[[Prototype]]</span></div>
+        <div class="node l3" id="n2">
+          <div class="node-head"><span>Object.prototype</span><span class="role">prototype</span></div>
+          <div class="node-body" id="n2b"></div>
+        </div>
+        <div class="link" id="k2"><span class="arw">&#8595;</span><span>[[Prototype]]</span></div>
+        <div class="nul">null &mdash; end of the chain</div>
+      </div>
+      <div>
+        <div class="console" id="c3" style="min-height:14em"></div>
+        <div class="row" style="margin-top:12px">
+          <button class="run d" data-look="name">player1.name</button>
+          <button class="run p" data-look="sayHello">player1.sayHello</button>
+          <button class="run v" data-look="valueOf">player1.valueOf</button>
+          <button class="run v" data-look="hasOwnProperty">player1.hasOwnProperty</button>
+          <button class="run t" data-look="nope">player1.nope</button>
+          <button class="reset" data-clear="c3">Clear</button>
+        </div>
+      </div>
+    </div>
+
+    <h3>hasOwnProperty — own vs inherited</h3>
+    <p>How do we know <span class="icode">.valueOf</span> is defined on <span class="icode">Object.prototype</span> and not on <span class="icode">player1</span>? We use another function that itself comes from the chain:</p>
+    <pre class="code">player1.<span class="f">hasOwnProperty</span>(<span class="s">"valueOf"</span>);           <span class="c">// false</span>
+Object.prototype.<span class="f">hasOwnProperty</span>(<span class="s">"valueOf"</span>);  <span class="c">// true</span>
+Object.prototype.<span class="f">hasOwnProperty</span>(<span class="s">"hasOwnProperty"</span>); <span class="c">// true</span></pre>
+
+    <div class="lnote">
+      <h4>Two notes from the lesson</h4>
+      <p><b>1.</b> Every prototype object inherits from <span class="icode">Object.prototype</span> by default, whether directly or indirectly.</p>
+      <p><b>2.</b> An object's <span class="icode">Object.getPrototypeOf()</span> value can only be <b>one</b> value — an object cannot have multiple <span class="icode">[[Prototype]]</span>s.</p>
+    </div>
+  </section>
+
+  <!-- ============ §4 DO'S AND DON'TS ============ -->
+  <section class="lesson" id="s4">
+    <div class="sec-head"><span class="sec-num">&sect;4</span><h2>Recommended method &mdash; do's and don'ts</h2></div>
+    <p>Just as <span class="icode">Object.getPrototypeOf()</span> <b>gets</b> an object's prototype, <span class="term">Object.setPrototypeOf()</span> <b>sets</b> it. It takes two arguments: the first is the one which inherits, the second is the one you want it to inherit from.</p>
+
+    <pre class="code"><span class="c">// ✅ DO — make Player.prototype INHERIT FROM Person.prototype</span>
+Object.<span class="f">setPrototypeOf</span>(Player.prototype, Person.prototype);
+
+<span class="c">// ❌ DON'T — this makes them the SAME OBJECT in memory</span>
+Player.prototype = Person.prototype;</pre>
+
+    <p style="margin-top:16px">Both <span class="icode">Player.prototype</span> and <span class="icode">Person.prototype</span> become the exact same object, so any change to one also changes the other. Watch it happen — the lesson's own <span class="icode">Enemy</span> example:</p>
+
+    <div class="split wide">
+      <pre class="code"><span class="k">function</span> <span class="f">Person</span>(name) { <span class="tok tok-this">this</span>.name = name; }
+Person.prototype.sayName = <span class="k">function</span>() {
+  console.<span class="f">log</span>(<span class="s">`Hello, I'm ${this.name}!`</span>);
+};
+
+<span class="k">function</span> <span class="f">Player</span>(name, marker) { <span class="c">/* … */</span> }
+<span class="k">function</span> <span class="f">Enemy</span>(name) { <span class="c">/* … */</span> }
+
+<span class="c">// the mode toggle below switches between:</span>
+<span class="c">//   Player.prototype = Person.prototype          ❌</span>
+<span class="c">//   Object.setPrototypeOf(Player.prototype, …)   ✅</span>
+
+Enemy.prototype.sayName = <span class="k">function</span>() {
+  console.<span class="f">log</span>(<span class="s">"HAHAHAHAHAHA"</span>);
+};
+
+<span class="k">const</span> carl = <span class="k">new</span> <span class="f">Player</span>(<span class="s">"carl"</span>, <span class="s">"X"</span>);
+carl.<span class="f">sayName</span>();</pre>
+      <div>
+        <div class="row" style="margin-bottom:10px">
+          <button class="run t" id="modeBad" aria-pressed="true">Mode: = assignment &nbsp;❌</button>
+          <button class="run p" id="modeGood" aria-pressed="false">Mode: setPrototypeOf &nbsp;✅</button>
+        </div>
+        <div class="console" id="c4" style="min-height:11em"></div>
+        <div class="row" style="margin-top:10px">
+          <button class="run" data-c4="sabotage">Enemy.prototype.sayName = "HAHAHAHAHAHA"</button>
+          <button class="run d" data-c4="carl">carl.sayName()</button>
+          <button class="reset" data-c4="reset">Reset</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="lnote bad">
+      <h4>Don't — Player.prototype = Person.prototype</h4>
+      <p>Both become the <b>exact same object in memory</b>. Any change made to <span class="icode">Player.prototype</span> also affects <span class="icode">Person.prototype</span>, which is not the intended behaviour. Instead, make <span class="icode">Player.prototype</span> <b>inherit from</b> <span class="icode">Person.prototype</span>, rather than making them the same object.</p>
+    </div>
+
+    <div class="lnote">
+      <h4>Do — but set the chain up before creating objects</h4>
+      <p>Though <span class="icode">Object.setPrototypeOf()</span> seems an easy way to set up prototypal inheritance, the prototype chain <b>has to be set up before creating any objects</b>. Using <span class="icode">setPrototypeOf()</span> after objects have already been created <b>can result in performance issues</b>.</p>
+    </div>
+  </section>
+
+  <!-- ============ §5 ASSIGNMENT ============ -->
+  <section class="lesson" id="s5">
+    <div class="sec-head"><span class="sec-num">&sect;5</span><h2>Assignment &mdash; the required reading</h2></div>
+    <p>Unlike the previous lesson, this one <b>does</b> have an assignment: three articles. Below is what each one is for and the points worth carrying away. <b>These summaries are not a substitute for reading them</b> — especially the JavaScript.info exercises, which the lesson tells you not to skip.</p>
+
+    <div class="article">
+      <div class="art-top"><span class="art-src">DigitalOcean</span>
+        <h4><a href="https://www.digitalocean.com/community/tutorials/understanding-prototypes-and-inheritance-in-javascript">Understanding Prototypes and Inheritance in JavaScript</a></h4>
+      </div>
+      <p class="art-why">Odin's framing: "a good review of prototype inheritance and constructor functions, featuring some examples."</p>
+      <ul>
+        <li>Its four sections: <b>JavaScript Prototypes</b> → <b>Prototype Inheritance</b> → <b>Constructor Functions</b> → Conclusion.</li>
+        <li><b>The lookup rule.</b> JavaScript searches the object itself first, then its <code>[[Prototype]]</code>, then that object's prototype, and so on until the end of the chain. At the end sits <code>Object.prototype</code>; searching beyond it gives <code>null</code>.</li>
+        <li><b>Chains have different lengths.</b> A plain object is one link: <code>x</code> → <code>Object</code>. An array is two: <code>y</code> → <code>Array</code> → <code>Object</code>. You can verify with <code>y.__proto__ === Array.prototype</code> and <code>y.__proto__.__proto__ === Object.prototype</code>.</li>
+        <li><b>Constructor functions</b> are just regular functions — a function <i>becomes</i> a constructor when it is called with <code>new</code>. By convention we capitalise the first letter.</li>
+        <li><b>Define properties in the constructor, methods on the prototype.</b> The article states this is common practice in JavaScript, for efficiency and readability — its <code>Hero(name, level)</code> holds the data, <code>Hero.prototype.greet</code> holds the behaviour.</li>
+        <li><b>Chaining constructors with <code>call()</code>.</b> <code>Hero.call(this, name, level)</code> copies the parent's own properties into a child constructor such as <code>Warrior</code> or <code>Healer</code>.</li>
+        <li><b>The catch worth remembering:</b> <code>call()</code> copies properties but <b>does not link prototypes</b>. After only <code>call()</code>, <code>hero1.greet()</code> throws <i>"is not a function"</i>. You must also run <code>Object.setPrototypeOf(Warrior.prototype, Hero.prototype)</code> — and put it <b>before</b> any additional prototype methods.</li>
+        <li>It uses <code>__proto__</code> for demonstration but says plainly it is a legacy feature that should not be used in production code.</li>
+      </ul>
+    </div>
+
+    <div class="article">
+      <div class="art-top"><span class="art-src">JavaScript.info</span>
+        <h4><a href="https://javascript.info/prototype-inheritance">Prototypal Inheritance</a></h4>
+      </div>
+      <p class="art-why">Odin's framing: go "a bit deeper into both the chain and inheritance" — and <b>do the exercises at the end. Don't skip them.</b></p>
+      <ul>
+        <li><b>The core rule:</b> when you read a property from an object and it is missing, JavaScript automatically takes it from the prototype.</li>
+        <li><b>Two limitations.</b> (1) The references <b>cannot form a circle</b> — JavaScript throws if you try. (2) The value of <code>[[Prototype]]</code> must be <b>either an object or <code>null</code></b>; any other type is ignored.</li>
+        <li><b>Writing does not use the prototype.</b> This is the point most people miss. Assignment and deletion operate on the <b>object itself</b>, never the prototype. Reading walks the chain; writing does not.</li>
+        <li><b>The exception</b> is <b>accessor properties</b> — a setter defined on the prototype does run, and it modifies the calling object.</li>
+        <li><b>The <code>this</code> rule, stated crisply:</b> in a method call, <code>this</code> is always the object before the dot. A method may be <i>inherited</i> from a prototype, but when it runs, <code>this</code> is the object it was called on — <b>not</b> the prototype that stores it. This is why shared methods can safely modify per-object state.</li>
+        <li><b>Iteration differs.</b> <code>for..in</code> loops over <b>own and inherited</b> enumerable properties. <code>Object.keys()</code>, <code>Object.values()</code> and friends only see the object's <b>own</b> properties. Use <code>hasOwnProperty()</code> to tell them apart.</li>
+        <li>⚠️ <b>Odin's own warning about this article:</b> it makes heavy use of <code>__proto__</code>, which is <b>not generally recommended</b>. Read it for the concepts; you will soon learn better ways to set the prototype.</li>
+      </ul>
+    </div>
+
+    <div class="article">
+      <div class="art-top"><span class="art-src">JavaScript Tutorial</span>
+        <h4><a href="https://www.javascripttutorial.net/javascript-this/">The JavaScript <em>this</em> keyword</a></h4>
+      </div>
+      <p class="art-why">Odin's framing: you have been using <code>this</code> in constructors and prototype methods — this covers how it changes in various situations. <b>Pay special attention to the pitfalls mentioned in each section.</b></p>
+      <ul>
+        <li>This article is the source for lesson overview point 5. Its six situations are laid out interactively in <a href="#s6">&sect;6</a> below — work through them there.</li>
+        <li>The headline distinction: <code>this</code> is <b>not</b> fixed when a function is written. It is decided by <b>how the function is called</b>.</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- ============ §6 THIS SITUATIONS ============ -->
+  <section class="lesson" id="s6">
+    <div class="sec-head"><span class="sec-num">&sect;6</span><h2>How <span style="font-style:italic">this</span> behaves in six situations</h2></div>
+    <p>From the assignment's third article. The same function body can mean six different things depending on how it is called. Pick a situation.</p>
+
+    <div class="split chainy">
+      <div class="sit" id="sitList"></div>
+      <div class="sitpanel" id="sitPanel"></div>
+    </div>
+  </section>
+
+  <!-- ============ §7 KNOWLEDGE CHECK ============ -->
+  <section class="lesson" id="s7">
+    <div class="sec-head"><span class="sec-num">&sect;7</span><h2>Knowledge check</h2></div>
+    <p>The lesson's six questions. You are not expected to memorize or master this knowledge.</p>
+
+    <details class="qa"><summary>How do you write an object constructor and instantiate the object?</summary>
+      <p class="ans">Write it as an ordinary function, capitalised by convention, that assigns to <b><span class="icode">this</span></b>. Instantiate it by calling that function with <b><span class="icode">new</span></b>.
+      <span class="code"><span class="k">function</span> <span class="f">Player</span>(name, marker) {
+  <span class="tok tok-this">this</span>.name = name;
+  <span class="tok tok-this">this</span>.marker = marker;
+}
+<span class="k">const</span> player = <span class="k">new</span> <span class="f">Player</span>(<span class="s">"steve"</span>, <span class="s">"X"</span>);</span></p>
+    </details>
+
+    <details class="qa"><summary>How can you prevent that an object constructor is called without using the keyword <span class="icode">new</span>?</summary>
+      <p class="ans">Use the <b><span class="icode">new.target</span></b> meta-property to safeguard it. When the function is called without <span class="icode">new</span>, <span class="icode">new.target</span> is <span class="icode">undefined</span>, so you can throw.
+      <span class="code"><span class="k">if</span> (!<span class="k">new</span>.target) {
+  <span class="k">throw</span> <span class="f">Error</span>(<span class="s">"You must use the 'new' operator to call the constructor"</span>);
+}</span></p>
+    </details>
+
+    <details class="qa"><summary>What is a prototype and how can it be used?</summary>
+      <p class="ans">A prototype (<b><span class="icode">[[Prototype]]</span></b>) is <b>another object</b> that an object is linked to and inherits from. If a property or method is not found on the object itself, JavaScript looks for it in the <span class="icode">[[Prototype]]</span>. You access it with <span class="icode">Object.getPrototypeOf()</span>. Define properties and functions <b>on</b> a constructor's <span class="icode">.prototype</span> and every object created from that constructor can use them — <span class="icode">Player.prototype.sayHello = function() {…}</span> makes <span class="icode">sayHello</span> available to both <span class="icode">player1</span> and <span class="icode">player2</span>.</p>
+    </details>
+
+    <details class="qa"><summary>What is prototypal inheritance?</summary>
+      <p class="ans">An object inherits from its <span class="icode">[[Prototype]]</span> object, which in turn inherits from <b>its own</b> <span class="icode">[[Prototype]]</span>, and so on — forming a <b>chain</b>. JavaScript traverses that chain looking for a property or function. The chain does not go on forever: <span class="icode">Object.getPrototypeOf(Object.prototype)</span> is <b><span class="icode">null</span></b>, the end of the chain, and if the property was not found by then, <span class="icode">undefined</span> is returned. Two things to remember: every prototype object inherits from <span class="icode">Object.prototype</span> by default, and an object can only have <b>one</b> <span class="icode">[[Prototype]]</span>.</p>
+    </details>
+
+    <details class="qa"><summary>What are the basic do's and don't's of prototypal inheritance?</summary>
+      <p class="ans"><b>DO</b> use <span class="icode">Object.setPrototypeOf(Player.prototype, Person.prototype)</span> — the first argument inherits, the second is inherited from. <b>DO</b> set the chain up <b>before creating any objects</b>; doing it afterwards can cause performance issues.<br><br>
+      <b>DON'T</b> write <span class="icode">Player.prototype = Person.prototype</span>. That makes them <b>the exact same object in memory</b>, so editing one edits the other — which is how <span class="icode">carl.sayName()</span> ends up logging <span class="icode">"HAHAHAHAHAHA"</span>. <b>DON'T</b> use <span class="icode">.__proto__</span>; it is non-standard and deprecated.</p>
+    </details>
+
+    <details class="qa"><summary>How does <span class="icode">this</span> behave in different situations?</summary>
+      <p class="ans">It depends entirely on <b>how the function is called</b>, not where it was written. In a <b>method call</b> it is the object before the dot. In a <b>constructor call with <span class="icode">new</span></b> it is the newly created object. In a <b>simple function call</b> it is the global object — or <span class="icode">undefined</span> in strict mode. In an <b>indirect call</b> via <span class="icode">call()</span> or <span class="icode">apply()</span> it is whatever you pass. In an <b>arrow function</b> it is inherited from the enclosing scope, so arrow functions should not be used as methods. See <a href="#s6">&sect;6</a> for all six with their pitfalls.</p>
+    </details>
+  </section>
+
+  <!-- ============ §8 QUIZ ============ -->
+  <section class="lesson" id="s8">
+    <div class="sec-head"><span class="sec-num">&sect;8</span><h2>Test yourself</h2></div>
+    <p>Fourteen questions across the lesson <b>and the assignment reading</b>. Pick an answer and you get the reasoning immediately, tagged with the section to revisit.</p>
+
+    <div class="scorebar">
+      <span class="stat">answered <b id="qAnswered">0</b> / <b id="qTotal">14</b></span>
+      <span class="stat">correct <b id="qCorrect">0</b></span>
+      <span class="bar"><i id="qBar"></i></span>
+      <button class="reset" id="qReset">Start over</button>
+    </div>
+    <div class="quiz" id="quiz"></div>
+    <div class="result" id="qResult"><h4 id="qResultH"></h4><p id="qResultP"></p></div>
+  </section>
+
+  <!-- ============ §9 STICKING POINTS ============ -->
+  <section class="lesson" id="s9">
+    <div class="sec-head"><span class="sec-num">&sect;9</span><h2>Sticking points &mdash; the three that catch everyone</h2></div>
+    <p><b>Come here after the quiz</b> &mdash; especially if you missed Q7, Q12 or Q13. These three trip up almost every learner, and they are really <b>one idea in three disguises</b>: in JavaScript, objects <b>link</b> to each other &mdash; they do not <b>copy</b> each other. Everything below follows from that.</p>
+
+    <!-- ---- A ---- -->
+    <div class="stick">
+      <div class="stick-top"><span class="qref">Quiz Q7</span>
+        <h4>Why is the end of the chain <span class="icode">null</span> and not an object?</h4></div>
+
+      <p class="plain"><b>In plain words:</b> the chain is a line of objects you can ask for help. Each one says <i>"not me — ask the next one."</i> <b><span class="icode">null</span> means there is no next one.</b> It is a full stop, not another object.</p>
+
+      <p>Click each position to see what actually sits there:</p>
+      <div class="ruler" id="ruler">
+        <button class="rung" data-rung="0" aria-pressed="true"><span class="pos">position 0</span>player1</button>
+        <button class="rung" data-rung="1" aria-pressed="false"><span class="pos">position 1</span>Player.prototype</button>
+        <button class="rung" data-rung="2" aria-pressed="false"><span class="pos">position 2</span>Object.prototype</button>
+        <button class="rung endstop" data-rung="3" aria-pressed="false"><span class="pos">position 3</span>null</button>
+      </div>
+      <div class="console" id="cr" style="margin-top:12px; min-height:5em"></div>
+
+      <ul class="wrongs">
+        <li><span class="mk x">&times;</span><span>Not <code>Object</code> — that is the constructor <b>function</b>. Functions and prototypes are different things.</span></li>
+        <li><span class="mk x">&times;</span><span>Not <code>{}</code> — an empty object would mean there is <i>still</i> one more to ask, and the chain would never stop.</span></li>
+        <li><span class="mk ok">&check;</span><span><code>null</code> — <b>the chain has to end somewhere</b>, or a failed lookup would search forever. When the search runs off the end, you get <code>undefined</code>: <i>"nobody had it."</i></span></li>
+      </ul>
+      <p style="margin-bottom:0"><b>Two different words, two different jobs:</b> <span class="icode">null</span> is where the <b>chain</b> stops. <span class="icode">undefined</span> is the <b>answer you get back</b> when the search found nothing.</p>
+    </div>
+
+    <!-- ---- B ---- -->
+    <div class="stick">
+      <div class="stick-top"><span class="qref">Quiz Q12</span>
+        <h4>A method lives on the prototype &mdash; so why isn't <span class="icode">this</span> the prototype?</h4></div>
+
+      <p class="plain"><b>In plain words:</b> think of a recipe pinned on a shared kitchen wall. The recipe says <i>"add <b>your</b> flour."</i> When Anna cooks, it means Anna's flour. When Ben cooks, Ben's flour. <b>One recipe on the wall, but it always uses the flour of whoever is cooking.</b></p>
+
+      <p>The method is stored in <b>one</b> place. <span class="icode">this</span> is <b>whoever called it</b>. Those are two completely separate questions — and you already know the rule from the last lesson: <b>look left of the dot</b>.</p>
+
+      <div class="split chainy">
+        <div>
+          <div class="node l2" style="margin-bottom:10px">
+            <div class="node-head"><span>sleeper</span><span class="role">the prototype &mdash; one copy</span></div>
+            <div class="node-body">
+              <div class="pk" id="pkSleep"><span class="pn">sleep()</span><span class="pv">return this.name + " sleeps"</span></div>
+            </div>
+          </div>
+          <div class="linkbar on">&#8593; both objects below link to it &#8593;</div>
+          <div class="split" style="gap:10px">
+            <div class="node l1" id="bRabbit"><div class="node-head"><span>rabbit</span></div>
+              <div class="node-body"><div class="pk"><span class="pn">name</span><span class="pv">"Rabbit"</span></div></div></div>
+            <div class="node l1" id="bHare"><div class="node-head"><span>hare</span></div>
+              <div class="node-body"><div class="pk"><span class="pn">name</span><span class="pv">"Hare"</span></div></div></div>
+          </div>
+        </div>
+        <div>
+          <div class="console" id="cm" style="min-height:9em"></div>
+          <div class="row" style="margin-top:10px">
+            <button class="run d" data-m="rabbit">rabbit.sleep()</button>
+            <button class="run d" data-m="hare">hare.sleep()</button>
+            <button class="reset" data-clear="cm">Clear</button>
+          </div>
+        </div>
+      </div>
+
+      <ul class="wrongs">
+        <li><span class="mk x">&times;</span><span>Where a function is <b>stored</b> tells you nothing about <code>this</code>.</span></li>
+        <li><span class="mk ok">&check;</span><span><b>How it is called</b> decides <code>this</code>. <code>rabbit.sleep()</code> &rarr; <code>this</code> is <code>rabbit</code>.</span></li>
+      </ul>
+      <p style="margin-bottom:0"><b>Why the language does it this way:</b> if <span class="icode">this</span> were the prototype, every rabbit would be sharing one set of data, and changing one would change them all. Because <span class="icode">this</span> is the caller, <b>one shared method can safely work on thousands of separate objects</b> — which is the entire point of putting it on the prototype.</p>
+    </div>
+
+    <!-- ---- C0: call and apply from zero ---- -->
+    <div class="stick" style="border-left-color:var(--proc)">
+      <div class="stick-top"><span class="qref" style="color:var(--proc);border-color:var(--proc)">groundwork for Q13</span>
+        <h4>What are <span class="icode">call()</span> and <span class="icode">apply()</span>?</h4></div>
+
+      <p class="plain"><b>In plain words:</b> they are a way to <b>run a function and choose what <span class="icode">this</span> will be</b>. That is the whole idea. Everything else is detail.</p>
+
+      <h3 style="margin-top:16px">The problem they solve</h3>
+      <p>Imagine a short speech written on a card. It says:</p>
+      <div class="speech">&ldquo;I am <span class="blank">this.name</span>&rdquo;</div>
+      <p>The card is not <i>about</i> anybody yet. The blank gets filled in by <b>whoever reads it out</b>. In code, that card is just a function:</p>
+      <pre class="code"><span class="k">function</span> <span class="f">introduce</span>() {
+  <span class="k">return</span> <span class="s">"I am "</span> + <span class="tok tok-this lit">this</span>.name;
+}</pre>
+
+      <p style="margin-top:16px">Normally you get a <span class="icode">this</span> by <b>putting the function inside an object</b> and using a dot. But that means attaching it to every object that needs it. <span class="icode">.call()</span> lets you skip that: <b>hand the card to someone and say &ldquo;read this, as yourself&rdquo;.</b></p>
+
+      <p style="margin:12px 0 8px;font-size:.88rem">Who reads the card?</p>
+      <div class="readers" id="readers">
+        <button class="reader" data-rdr="0" aria-pressed="true">alice</button>
+        <button class="reader" data-rdr="1" aria-pressed="false">bob</button>
+        <button class="reader" data-rdr="2" aria-pressed="false">a Volkswagen Golf</button>
+      </div>
+      <div class="console" id="cc" style="margin-top:12px; min-height:5em"></div>
+      <p>The function never moved, and nobody owns it. You just pointed it at a different object each time.</p>
+
+      <h3>call vs apply &mdash; one tiny difference</h3>
+      <p>When the function takes arguments, you have two ways to hand them over. <b>The result is identical.</b> Only the packaging differs:</p>
+      <pre class="code">greet.<span class="f">call</span> (alice, <span class="s">"Hello"</span>, <span class="s">"!"</span>);    <span class="c">// arguments separated by COMMAS</span>
+greet.<span class="f">apply</span>(alice, [<span class="s">"Hello"</span>, <span class="s">"!"</span>]);  <span class="c">// arguments inside an ARRAY</span>
+
+<span class="c">// both give:  "Hello, I am Alice!"</span></pre>
+      <p class="plain" style="margin-top:14px"><b>How to remember it:</b> <b>C</b>all = <b>C</b>ommas. &nbsp; <b>A</b>pply = <b>A</b>rray.</p>
+      <p>Reach for <span class="icode">apply</span> when your arguments already sit in an array. Classic example: <span class="icode">Math.max.apply(null, [3, 9, 4, 1])</span> gives <span class="icode">9</span>, because <span class="icode">Math.max</span> wants separate arguments but you have an array.</p>
+
+      <div class="lnote">
+        <h4>A close relative &mdash; bind()</h4>
+        <p><span class="icode">call</span> and <span class="icode">apply</span> <b>run the function right now</b>. <span class="icode">bind</span> does not &mdash; it hands you back a <b>new function</b> with <span class="icode">this</span> permanently attached, to call whenever you like. That is the fix for the &ldquo;storing a method in a variable loses the object&rdquo; pitfall in <a href="#s6">&sect;6, situation 3</a>.</p>
+      </div>
+
+      <h3>Reading <span style="text-transform:none" class="icode">Hero.call(this, name, level)</span></h3>
+      <p>Now that line breaks into three ordinary parts:</p>
+      <div class="bit b1"><span class="bc">Hero</span><span class="bd">the function to run</span></div>
+      <div class="bit b2"><span class="bc">this</span><span class="bd">what <code>this</code> should be while it runs &mdash; here, the Warrior currently being built</span></div>
+      <div class="bit b3"><span class="bc">name, level</span><span class="bd">the arguments to pass in (commas, because it is <code>call</code>)</span></div>
+      <p style="margin-bottom:0">Out loud: <b>&ldquo;Run Hero, with <span class="icode">this</span> meaning my Warrior, passing name and level.&rdquo;</b></p>
+    </div>
+
+    <!-- ---- C ---- -->
+    <div class="stick">
+      <div class="stick-top"><span class="qref">Quiz Q13</span>
+        <h4>Why does <span class="icode">call()</span> not bring the methods along?</h4></div>
+
+      <h3 style="margin-top:14px">Step zero &mdash; what is <span style="text-transform:none" class="icode">call()</span> even for?</h3>
+      <p>The scenario is a text RPG. <b>Every</b> character has a <span class="icode">name</span> and a <span class="icode">level</span>. Warriors <i>also</i> have a weapon; Healers <i>also</i> have a spell.</p>
+      <p><span class="icode">Hero</span> already knows how to set name and level. <span class="icode">Warrior</span> wants to <b>reuse those two lines</b> instead of retyping them. The only question is <i>how</i>. Try the four ways:</p>
+
+      <div class="row" style="margin-bottom:10px">
+        <button class="run" data-why="0">1. just repeat the lines</button>
+        <button class="run t" data-why="1">2. new Hero(&hellip;) inside</button>
+        <button class="run t" data-why="2">3. Hero(&hellip;) plainly</button>
+        <button class="run p" data-why="3">4. Hero.call(this, &hellip;)</button>
+      </div>
+      <div class="sitpanel" id="whyPanel"></div>
+
+      <p class="plain" style="margin-top:16px"><b>So in plain words:</b> <span class="icode">Hero.call(this, name, level)</span> means <b>&ldquo;Hey Hero &mdash; do your setup work, but on <u>my</u> object, not a new one.&rdquo;</b><br><br>
+      That is all <span class="icode">.call()</span> ever does: <b>run a function, and let you choose what <span class="icode">this</span> will be.</b> You already met it in <a href="#s6">&sect;6, situation 5</a> &mdash; this is that same tool doing a real job.</p>
+
+      <h3>Now the actual sticking point</h3>
+      <p class="plain"><b>In plain words:</b> <span class="icode">Hero.call(this, ...)</span> is a <b>photocopy</b> — it copies a few facts onto your form, once, and then it is over. <span class="icode">Object.setPrototypeOf</span> is a <b>phone line</b> — it lets you ring Hero whenever you need something you do not have.</p>
+
+      <p>Here is the real reason, and it is simpler than it looks. Remember the convention: <b>properties go inside the constructor, methods go on the prototype.</b></p>
+      <pre class="code"><span class="k">function</span> <span class="f">Hero</span>(name, level) {
+  <span class="tok tok-this">this</span>.name = name;     <span class="c">// ← INSIDE the function body</span>
+  <span class="tok tok-this">this</span>.level = level;   <span class="c">// ← INSIDE the function body</span>
+}
+Hero.prototype.greet = <span class="k">function</span>() { … };  <span class="c">// ← OUTSIDE it, added separately</span></pre>
+      <div class="split" style="margin:14px 0">
+        <div class="twobox yes"><h6>&check; what call() runs</h6>
+          <pre class="code"><span class="tok tok-this">this</span>.name = name;
+<span class="tok tok-this">this</span>.level = level;</pre></div>
+        <div class="twobox no"><h6>&times; what call() never sees</h6>
+          <pre class="code">Hero.prototype.greet =
+  <span class="k">function</span>() { … };</pre></div>
+      </div>
+      <p><span class="icode">call()</span> does exactly one thing: <b>it runs the function body.</b> And <span class="icode">greet</span> was never in the function body — it was attached to <span class="icode">Hero.prototype</span> on a separate line. So <span class="icode">call()</span> cannot possibly have brought it. It never saw it.</p>
+
+      <div class="split chainy">
+        <div>
+          <div class="node l1" id="wBox"><div class="node-head"><span>hero1</span><span class="role">a Warrior</span></div>
+            <div class="node-body" id="wBody"></div></div>
+          <div class="linkbar" id="wLink">no link to Hero.prototype yet</div>
+          <div class="node l2" style="opacity:.85"><div class="node-head"><span>Hero.prototype</span></div>
+            <div class="node-body"><div class="pk"><span class="pn">greet()</span><span class="pv">function</span></div></div></div>
+        </div>
+        <div>
+          <div class="console" id="cw" style="min-height:9em"></div>
+          <div class="stepper" id="wSteps"></div>
+          <div class="row"><button class="reset" id="wReset">Start over</button></div>
+        </div>
+      </div>
+
+      <ul class="wrongs">
+        <li><span class="mk x">&times;</span><span><code>call()</code> does <b>not</b> link prototypes. It only runs the body, copying own properties.</span></li>
+        <li><span class="mk ok">&check;</span><span>You need <b>both</b>: <code>call()</code> for the <b>data</b>, <code>Object.setPrototypeOf</code> for the <b>behaviour</b>.</span></li>
+        <li><span class="mk ok">&check;</span><span>Put the <code>setPrototypeOf</code> line <b>before</b> any extra prototype methods, and before creating objects.</span></li>
+      </ul>
+    </div>
+
+    <div class="lnote">
+      <h4>The one sentence behind all three</h4>
+      <p><b>JavaScript objects link, they do not copy.</b> A link is live and shared, which is why one method serves every object (Q12) and why the links form a chain that must end somewhere (Q7). A copy is a one-time transfer of values, which is why <span class="icode">call()</span> gives you data but no behaviour (Q13).</p>
+    </div>
+  </section>
+
+  <footer class="foot">
+    <span>An unofficial study companion. Source lesson: <a href="https://www.theodinproject.com/lessons/node-path-javascript-object-constructors">Object Constructors</a>, The Odin Project.</span>
+    <span>Article summaries in &sect;5 are distilled from the linked originals and are no substitute for reading them.</span>
+  </footer>
+</div>
+
+<script>
+(function () {
+  "use strict";
+  var RM = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  function esc(s){ return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;"); }
+  function log(id, expr, result, kind) {
+    var box = document.getElementById(id);
+    if (result !== undefined) {
+      var out = document.createElement("span");
+      out.className = "ln " + (kind || "out");
+      out.textContent = "  " + result;
+      box.insertBefore(out, box.firstChild);
+    }
+    if (expr) {
+      var line = document.createElement("span");
+      line.className = "ln";
+      line.innerHTML = '<span class="pr">&gt; </span>' + esc(expr);
+      box.insertBefore(line, box.firstChild);
+    }
+    while (box.children.length > 16) box.removeChild(box.lastChild);
+  }
+  function note(id, t){ log(id, null, t, "note"); }
+  function step(id, t){ log(id, null, t, "step"); }
+  function rowsHTML(p){
+    return p.map(function(r){
+      return '<div class="kv '+r[2]+'"><span class="k">'+r[0]+'</span><span class="v">'+esc(r[1])+'</span></div>';
+    }).join("");
+  }
+  document.querySelectorAll("[data-clear]").forEach(function(b){
+    b.addEventListener("click", function(){
+      document.getElementById(b.getAttribute("data-clear")).innerHTML = "";
+    });
+  });
+
+  /* ---------------- §1 constructors ---------------- */
+  function Player(name, marker){
+    this.name = name; this.marker = marker;
+    this.sayName = function(){ return this.name; };
+  }
+  var player1 = new Player("steve", "X");
+  var player2 = new Player("also steve", "O");
+
+  function i1Paint(obj, label){
+    document.getElementById("i1name").textContent = label;
+    document.getElementById("i1body").innerHTML = rowsHTML([
+      ["name", '"' + obj.name + '"', "prop"],
+      ["marker", '"' + obj.marker + '"', "prop"],
+      ["sayName", "function", "meth"]
+    ]);
+  }
+
+  document.getElementById("newRun").addEventListener("click", function(){
+    log("c1", 'const player1 = new Player("steve", "X")');
+    step("c1", "1. creates a new empty object");
+    step("c1", "2. makes `this` inside the function refer to that object");
+    step("c1", "3. links it to Player.prototype as its [[Prototype]]");
+    step("c1", "4. returns the new object — even with no return statement");
+    log("c1", null, 'player1.name  →  "steve"');
+    i1Paint(player1, "player1");
+  });
+  document.getElementById("noNewRun").addEventListener("click", function(){
+    log("c1", 'const p = Player("steve", "X")   // no new');
+    step("c1", "no object is created, no [[Prototype]] is linked");
+    step("c1", "`this` is undefined (strict) or the global object (non-strict)");
+    log("c1", null, "p  →  undefined", "undef");
+    note("c1", "The function has no return statement, so you get undefined — and nothing warned you.");
+  });
+  document.getElementById("guardRun").addEventListener("click", function(){
+    log("c1", 'Player("steve", "X")   // safeguarded version, no new');
+    log("c1", null, "Uncaught Error: You must use the 'new' operator to call the constructor", "undef");
+    note("c1", "new.target is undefined when called without new, so the guard throws immediately.");
+  });
+
+  function Book(title, author, pages, read){
+    this.title = title; this.author = author; this.pages = pages; this.read = read;
+    this.info = function(){
+      return this.title + " by " + this.author + ", " + this.pages + " pages, " +
+        (this.read ? "already read" : "not read yet");
+    };
+  }
+  document.getElementById("bookRun").addEventListener("click", function(){
+    var theHobbit = new Book("The Hobbit", "J.R.R. Tolkien", 295, false);
+    log("cb", 'const theHobbit = new Book("The Hobbit", "J.R.R. Tolkien", 295, false)');
+    log("cb", "theHobbit.info()", '"' + theHobbit.info() + '"');
+    var lotr = new Book("The Fellowship of the Ring", "J.R.R. Tolkien", 423, true);
+    log("cb", "lotr.info()", '"' + lotr.info() + '"');
+    note("cb", "One constructor, many books — that is the whole point of §1.");
+  });
+  document.getElementById("bookShow").addEventListener("click", function(){
+    log("cb", null, "function Book(title, author, pages, read) {");
+    log("cb", null, "  this.title = title;  this.author = author;");
+    log("cb", null, "  this.pages = pages;  this.read = read;");
+    log("cb", null, "  this.info = function() {");
+    log("cb", null, "    return `${this.title} by ${this.author}, ${this.pages} pages, `");
+    log("cb", null, "      + (this.read ? 'already read' : 'not read yet');");
+    log("cb", null, "  };");
+    log("cb", null, "}");
+    note("cb", "Note it RETURNS a string rather than logging — see the console.log vs return note.");
+  });
+
+  /* ---------------- §2 prototype ---------------- */
+  var helloDefined = false;
+  document.querySelectorAll("[data-c2]").forEach(function(b){
+    b.addEventListener("click", function(){
+      var k = b.getAttribute("data-c2");
+      if (k === "eq1") {
+        log("c2", "Object.getPrototypeOf(player1) === Player.prototype", "true");
+        note("c2", "A reference to Player.prototype is stored in every Player instance as its [[Prototype]].");
+      } else if (k === "define") {
+        helloDefined = true; chainPaint();
+        log("c2", 'Player.prototype.sayHello = function() { … }');
+        note("c2", "Defined once, ON the prototype — neither player object was touched.");
+      } else {
+        var who = k === "hello1" ? "player1" : "player2";
+        log("c2", who + ".sayHello()");
+        if (helloDefined) log("c2", null, '"Hello, I\'m a player!"');
+        else { log("c2", null, "TypeError: " + who + ".sayHello is not a function", "undef");
+               note("c2", "Define it on Player.prototype first."); }
+      }
+    });
+  });
+
+  /* ---------------- §3 the chain ---------------- */
+  var CHAIN = [
+    { id:"n0", body:"n0b", label:"player1",
+      keys:[["name",'"steve"'],["marker",'"X"'],["sayName","function"]] },
+    { id:"n1", body:"n1b", label:"Player.prototype",
+      keys:[["constructor","Player"]] },
+    { id:"n2", body:"n2b", label:"Object.prototype",
+      keys:[["valueOf","function"],["hasOwnProperty","function"],["toString","function"]] }
+  ];
+  function chainPaint(){
+    CHAIN.forEach(function(lvl, i){
+      var keys = lvl.keys.slice();
+      if (i === 1 && helloDefined) keys.unshift(["sayHello","function"]);
+      document.getElementById(lvl.body).innerHTML = keys.map(function(k){
+        return '<div class="pk" data-key="'+k[0]+'" data-lvl="'+i+'">' +
+          '<span class="pn">'+k[0]+'</span><span class="pv">'+esc(k[1])+'</span></div>';
+      }).join("");
+    });
+  }
+  function chainClear(){
+    ["n0","n1","n2"].forEach(function(id){
+      document.getElementById(id).classList.remove("looking","found","missed");
+    });
+    ["k0","k1","k2"].forEach(function(id){ document.getElementById(id).classList.remove("active"); });
+    document.querySelectorAll(".pk.hit").forEach(function(e){ e.classList.remove("hit"); });
+  }
+  function levelHas(i, key){
+    if (i === 1 && key === "sayHello") return helloDefined;
+    return CHAIN[i].keys.some(function(k){ return k[0] === key; });
+  }
+  var busy = false;
+  function lookup(key){
+    if (busy) return;
+    busy = true; chainClear();
+    var buttons = document.querySelectorAll("[data-look]");
+    buttons.forEach(function(b){ b.disabled = true; });
+    log("c3", "player1." + key);
+    var i = 0;
+    var delay = RM ? 0 : 620;
+    function stepFn(){
+      if (i > 2) {
+        log("c3", null, "undefined", "undef");
+        note("c3", "End of the chain (null) reached without finding it — so undefined is returned.");
+        finish(); return;
+      }
+      var lvl = CHAIN[i];
+      document.getElementById(lvl.id).classList.add("looking");
+      if (levelHas(i, key)) {
+        document.getElementById(lvl.id).classList.remove("looking");
+        document.getElementById(lvl.id).classList.add("found");
+        var pk = document.querySelector('.pk[data-key="'+key+'"][data-lvl="'+i+'"]');
+        if (pk) pk.classList.add("hit");
+        step("c3", "Is ." + key + " part of " + lvl.label + "? YES — found it.");
+        if (i === 0) note("c3", "An OWN property. hasOwnProperty(\"" + key + "\") would be true.");
+        else note("c3", "INHERITED through the chain. player1.hasOwnProperty(\"" + key + "\") is false.");
+        finish(); return;
+      }
+      step("c3", "Is ." + key + " part of " + lvl.label + "? No.");
+      document.getElementById(lvl.id).classList.remove("looking");
+      document.getElementById(lvl.id).classList.add("missed");
+      document.getElementById("k" + i).classList.add("active");
+      i++;
+      setTimeout(stepFn, delay);
+    }
+    function finish(){
+      busy = false;
+      buttons.forEach(function(b){ b.disabled = false; });
+    }
+    setTimeout(stepFn, RM ? 0 : 120);
+  }
+  document.querySelectorAll("[data-look]").forEach(function(b){
+    b.addEventListener("click", function(){ lookup(b.getAttribute("data-look")); });
+  });
+
+  /* ---------------- §4 do's and don'ts ---------------- */
+  var badMode = true, sabotaged = false;
+  function s4Reset(){
+    sabotaged = false;
+    document.getElementById("c4").innerHTML = "";
+    note("c4", badMode
+      ? "Mode: Player.prototype = Person.prototype  (the WRONG way)"
+      : "Mode: Object.setPrototypeOf(Player.prototype, Person.prototype)  (the RIGHT way)");
+  }
+  function setMode(bad){
+    badMode = bad;
+    document.getElementById("modeBad").setAttribute("aria-pressed", String(bad));
+    document.getElementById("modeGood").setAttribute("aria-pressed", String(!bad));
+    s4Reset();
+  }
+  document.getElementById("modeBad").addEventListener("click", function(){ setMode(true); });
+  document.getElementById("modeGood").addEventListener("click", function(){ setMode(false); });
+  document.querySelectorAll("[data-c4]").forEach(function(b){
+    b.addEventListener("click", function(){
+      var k = b.getAttribute("data-c4");
+      if (k === "reset") { s4Reset(); return; }
+      if (k === "sabotage") {
+        sabotaged = true;
+        log("c4", 'Enemy.prototype.sayName = function() { console.log("HAHAHAHAHAHA"); }');
+        note("c4", badMode
+          ? "Enemy.prototype IS Person.prototype IS Player.prototype — one object, now edited."
+          : "Enemy.prototype is its own object that inherits from Person.prototype. Player is untouched.");
+        return;
+      }
+      log("c4", 'const carl = new Player("carl", "X"); carl.sayName()');
+      if (badMode && sabotaged) {
+        log("c4", null, '"HAHAHAHAHAHA"', "undef");
+        note("c4", "Uh oh! We only edited Enemy — but Player got the change too, because they are the same object.");
+      } else {
+        log("c4", null, '"Hello, I\'m carl!"');
+        if (sabotaged) note("c4", "Enemy was edited safely. Player kept its own sayName. This is why setPrototypeOf matters.");
+      }
+    });
+  });
+
+  /* ---------------- §6 this situations ---------------- */
+  var SITS = [
+    { n:"1", t:"Global context",
+      code:'console.log(this);\n<span class="c">// browser: Window   |   Node module: {}</span>',
+      rule:'<code>this</code> references the <b>global object</b> — <code>window</code> in a browser, <code>global</code> in Node.',
+      extra:"Behaves the same in strict and non-strict mode.",
+      pit:null },
+    { n:"2", t:"Simple function call",
+      code:'<span class="k">function</span> <span class="f">show</span>() { console.log(<span class="tok tok-this lit">this</span>); }\n<span class="f">show</span>();\n<span class="c">// non-strict → the global object</span>\n<span class="c">// strict     → undefined</span>',
+      rule:'Non-strict: <code>this</code> is the <b>global object</b>. Strict mode: <code>this</code> is <b>undefined</b>.',
+      extra:null,
+      pit:"You can accidentally reference and modify the global object without realising. Adding \"use strict\" prevents it." },
+    { n:"3", t:"Method call",
+      code:'<span class="k">const</span> car = {\n  brand: <span class="s">"Honda"</span>,\n  <span class="f">getBrand</span>() { <span class="k">return</span> <span class="tok tok-this lit">this</span>.brand; }\n};\ncar.<span class="f">getBrand</span>(); <span class="c">// "Honda"</span>',
+      rule:'<code>this</code> refers to <b>the object itself</b> — the one before the dot.',
+      extra:null,
+      pit:"Storing the method in a variable LOSES the object. `const f = car.getBrand; f()` gives undefined. Fix it with bind(): `const f = car.getBrand.bind(car)`." },
+    { n:"4", t:"Constructor call",
+      code:'<span class="k">function</span> <span class="f">Car</span>(brand) {\n  <span class="tok tok-this lit">this</span>.brand = brand;\n}\n<span class="k">const</span> c = <span class="k">new</span> <span class="f">Car</span>(<span class="s">"Honda"</span>);',
+      rule:'JavaScript creates a <b>new object</b> and sets <code>this</code> to that newly created object.',
+      extra:"This is exactly what §1 of the lesson is about.",
+      pit:"Omitting `new` makes `this` the global object, which typically ends in a TypeError. Guard with new.target — the lesson's Safeguarding note." },
+    { n:"5", t:"Indirect call &mdash; call() / apply()",
+      code:'<span class="k">function</span> <span class="f">greet</span>() { <span class="k">return</span> <span class="tok tok-this lit">this</span>.name; }\n<span class="k">const</span> a = { name: <span class="s">"Alice"</span> };\ngreet.<span class="f">call</span>(a);  <span class="c">// "Alice"</span>\ngreet.<span class="f">apply</span>(a); <span class="c">// "Alice"</span>',
+      rule:'<code>call()</code> and <code>apply()</code> let you <b>set the <code>this</code> value explicitly</b> when calling a function.',
+      extra:"This is the mechanism behind Hero.call(this, name, level) in the DigitalOcean article — see §5.",
+      pit:null },
+    { n:"6", t:"Arrow functions",
+      code:'<span class="k">const</span> car = {\n  brand: <span class="s">"Honda"</span>,\n  getBrand: () => <span class="tok tok-this lit">this</span>.brand\n};\ncar.<span class="f">getBrand</span>(); <span class="c">// undefined</span>',
+      rule:'An arrow function does <b>not create its own</b> <code>this</code> — it <b>inherits</b> it from the outer scope.',
+      extra:"This is the formal answer to the warning in the previous lesson.",
+      pit:"Using an arrow function as a method makes `this` the global object (or outer scope), not the instance. Never use => for object methods or constructor prototype methods." }
+  ];
+  function sitPaint(idx){
+    document.getElementById("sitList").innerHTML = SITS.map(function(s, i){
+      return '<button class="sitbtn" data-sit="'+i+'" aria-pressed="'+(i===idx)+'">' +
+        '<span class="sn">'+s.n+'</span><span class="st">'+s.t+'</span></button>';
+    }).join("");
+    var s = SITS[idx];
+    document.getElementById("sitPanel").innerHTML =
+      "<h5>" + s.t + "</h5>" +
+      '<p class="rule">' + s.rule + "</p>" +
+      '<pre class="code">' + s.code + "</pre>" +
+      (s.extra ? '<p class="rule" style="margin:12px 0 0;font-size:.88rem;color:var(--ink-2)">' + s.extra + "</p>" : "") +
+      (s.pit ? '<p class="pit"><b>Pitfall:</b> ' + esc(s.pit) + "</p>" : "");
+    document.querySelectorAll("[data-sit]").forEach(function(b){
+      b.addEventListener("click", function(){ sitPaint(+b.getAttribute("data-sit")); });
+    });
+  }
+
+  /* ---------------- §8 quiz ---------------- */
+  var QUIZ = [
+    { sec:"§1 Constructors",
+      q:"What does calling a function with <code>new</code> do that calling it without <code>new</code> does not?",
+      opts:["Nothing — <code>new</code> is optional syntax",
+            "It creates a new object, points <code>this</code> at it, links it to the function's <code>.prototype</code>, and returns it",
+            "It makes the function run faster",
+            "It copies the function into a new variable"],
+      a:1,
+      exp:"All four steps matter. Note the last one especially: <b>the new object is returned even though the constructor has no return statement</b>. Without <code>new</code> you get <code>undefined</code>." },
+    { sec:"§1 Constructors",
+      q:"How do you stop a constructor from being called without <code>new</code>?",
+      opts:["<code>if (!new.target) throw Error(…)</code>",
+            "<code>if (this === undefined) return</code>",
+            "You can't — JavaScript throws automatically",
+            "Wrap the whole constructor in try/catch"],
+      a:0,
+      exp:"The <b><code>new.target</code></b> meta-property is <code>undefined</code> when the function is called without <code>new</code>, so the guard throws. The lesson calls this <b>safeguarding constructors</b>." },
+    { sec:"§2 The prototype",
+      q:"<code>Object.getPrototypeOf(player1)</code> returns which object?",
+      opts:["<code>Player</code> — the constructor function itself",
+            "<code>Player.prototype</code>",
+            "<code>Object.prototype</code>",
+            "A fresh copy of Player.prototype, unique to player1"],
+      a:1,
+      exp:"A <b>reference</b> to <code>Player.prototype</code> is stored in every instance as its <code>[[Prototype]]</code> — so <code>Object.getPrototypeOf(player1) === Player.prototype</code> is <code>true</code>, and player2 gets the same shared object, not a copy." },
+    { sec:"§2 The prototype",
+      q:"What is the difference between <code>.prototype</code> and <code>Object.getPrototypeOf()</code>?",
+      opts:["They are two names for the same thing",
+            "<code>.prototype</code> is a property of <b>functions</b> that sets what a new instance's <code>[[Prototype]]</code> will be; <code>Object.getPrototypeOf()</code> reads an <b>object's</b> actual <code>[[Prototype]]</code>",
+            "<code>.prototype</code> is the modern version; <code>Object.getPrototypeOf()</code> is deprecated"],
+      a:1,
+      exp:"The lesson flags this as <b>a common cause of confusion</b>. <code>.prototype</code> is <b>not</b> for accessing an object's <code>[[Prototype]]</code> — that is what <code>Object.getPrototypeOf()</code> is for." },
+    { sec:"§2 The prototype",
+      q:"Why does the lesson tell you not to use <code>.__proto__</code>?",
+      opts:["It is slower than <code>Object.getPrototypeOf()</code>",
+            "It only works in Node, not browsers",
+            "It is non-standard and deprecated, kept only for historical reasons"],
+      a:2,
+      exp:"Both the lesson and the DigitalOcean article say the same thing: <code>__proto__</code> is a <b>legacy feature that should not be used in production code</b>. Use <code>Object.getPrototypeOf()</code> / <code>Object.setPrototypeOf()</code>." },
+    { sec:"§3 Inheritance",
+      q:"<code>player1.valueOf()</code> works, but <code>valueOf</code> was never defined on <code>player1</code> or on <code>Player.prototype</code>. Where does it come from?",
+      opts:["<code>Object.prototype</code>, found by walking the chain",
+            "It is a built-in keyword, not a property",
+            "The <code>Player</code> constructor adds it automatically",
+            "<code>Object.getPrototypeOf(player1)</code>"],
+      a:0,
+      exp:"<code>Object.getPrototypeOf(Player.prototype)</code> is <code>Object.prototype</code>, and <code>.valueOf</code> is defined there. Confirm it with <code>player1.hasOwnProperty(\"valueOf\") // false</code> versus <code>Object.prototype.hasOwnProperty(\"valueOf\") // true</code>." },
+    { sec:"§3 Inheritance",
+      q:"What is <code>Object.getPrototypeOf(Object.prototype)</code>?",
+      opts:["<code>Object</code>", "<code>{}</code>", "<code>null</code>", "It throws a TypeError"],
+      a:2,
+      exp:"<code>null</code> marks <b>the end of the chain</b>. If the property has not been found by that point, <code>undefined</code> is returned. Try <code>player1.nope</code> in the &sect;3 visualiser to watch it walk all the way down." },
+    { sec:"§3 Inheritance",
+      q:"Which two reasons does the lesson give for defining things on a prototype?",
+      opts:["To make code shorter, and to avoid typos",
+            "To save memory, and to share/reuse behaviour across objects",
+            "To make properties private, and to speed up lookups"],
+      a:1,
+      exp:"<b>Memory</b> — defining every function on every object costs a lot when you have many objects. <b>Reuse</b> — one <code>.sayHello</code> on <code>Player.prototype</code> serves every Player." },
+    { sec:"§4 Do's & don'ts",
+      q:"What is wrong with <code>Player.prototype = Person.prototype</code>?",
+      opts:["Nothing — it is the recommended way",
+            "They become the exact same object in memory, so editing one edits the other",
+            "It throws a TypeError",
+            "It only copies properties, not methods"],
+      a:1,
+      exp:"This is the lesson's <code>Enemy</code> example. Edit <code>Enemy.prototype.sayName</code> and <code>carl.sayName()</code> — a <b>Player</b> — logs <code>\"HAHAHAHAHAHA\"</code>. Use <code>Object.setPrototypeOf(Player.prototype, Person.prototype)</code> so Player <i>inherits from</i> Person instead of <i>being</i> Person." },
+    { sec:"§4 Do's & don'ts",
+      q:"In <code>Object.setPrototypeOf(a, b)</code>, which argument inherits from which?",
+      opts:["<code>a</code> inherits from <code>b</code>", "<code>b</code> inherits from <code>a</code>", "They inherit from each other"],
+      a:0,
+      exp:"The first argument is the one which inherits; the second is the one you want it to inherit from. And set the chain up <b>before creating any objects</b> — doing it after can cause performance issues." },
+    { sec:"§5 Assignment · JS.info",
+      q:"You have <code>rabbit</code> whose prototype is <code>animal</code>. <code>animal.eats = true</code>. You run <code>rabbit.eats = false</code>. What happens to <code>animal.eats</code>?",
+      opts:["It becomes <code>false</code> too",
+            "It stays <code>true</code> — writing creates an own property on <code>rabbit</code>",
+            "A TypeError is thrown"],
+      a:1,
+      exp:"A key point from the JavaScript.info reading: <b>writing does not use the prototype</b>. Reading walks the chain; <b>assignment and deletion operate on the object itself</b>. The one exception is accessor properties (setters)." },
+    { sec:"§5 Assignment · JS.info",
+      q:"A method defined on a prototype is called as <code>rabbit.sleep()</code>. Inside it, what is <code>this</code>?",
+      opts:["The prototype object that stores the method",
+            "<code>rabbit</code> — the object before the dot",
+            "<code>undefined</code>, because the method is inherited"],
+      a:1,
+      exp:"\"In a method call, <code>this</code> is always the object before the dot.\" Methods are <b>inherited</b>, but <code>this</code> is always the <b>calling</b> object, never the prototype storing the method. That is what makes shared methods safe." },
+    { sec:"§5 Assignment · DigitalOcean",
+      q:"<code>call()</code> runs <b>the inside of a function</b>. Look carefully at where each line is written below. After <code>Hero.call(this, name, level)</code>, what does <code>hero1</code> end up with?",
+      code:'<span class="k">function</span> <span class="f">Hero</span>(name, level) {\n  <span class="tok tok-this">this</span>.name = name;     <span class="c">// written INSIDE the body</span>\n  <span class="tok tok-this">this</span>.level = level;   <span class="c">// written INSIDE the body</span>\n}\n\nHero.prototype.greet = <span class="k">function</span>() { … };   <span class="c">// written OUTSIDE the body</span>\n\n<span class="k">function</span> <span class="f">Warrior</span>(name, level, weapon) {\n  Hero.<span class="f">call</span>(<span class="tok tok-this lit">this</span>, name, level);\n  <span class="tok tok-this">this</span>.weapon = weapon;\n}\n<span class="k">const</span> hero1 = <span class="k">new</span> <span class="f">Warrior</span>(<span class="s">"Bjorn"</span>, <span class="n">1</span>, <span class="s">"axe"</span>);',
+      opts:["<code>name</code>, <code>level</code> and <code>greet</code> — everything Hero has",
+            "<code>name</code> and <code>level</code>, but <b>not</b> <code>greet</code>",
+            "<code>greet</code>, but not <code>name</code> and <code>level</code>",
+            "Nothing — <code>call()</code> only works with <code>new</code>"],
+      a:1,
+      exp:"<code>name</code> and <code>level</code> are written <b>inside</b> Hero's body — so running that body sets them. <code>greet</code> is written <b>outside</b> it, on <code>Hero.prototype</code>, which <code>call()</code> never touches. To get <code>greet</code> as well you need the other tool: <code>Object.setPrototypeOf(Warrior.prototype, Hero.prototype)</code>. <b>call() for the data, setPrototypeOf for the behaviour.</b>" },
+    { sec:"§6 this",
+      q:"Which call style makes <code>this</code> the <b>global object</b> (in non-strict mode)?",
+      opts:["<code>car.getBrand()</code>", "<code>new Car(\"Honda\")</code>",
+            "<code>show()</code> — a simple function call", "<code>greet.call(alice)</code>"],
+      a:2,
+      exp:"A <b>simple function call</b> gives the global object in non-strict mode, and <code>undefined</code> in strict mode. Method calls give the object before the dot; <code>new</code> gives the new instance; <code>call()</code> gives whatever you pass." }
+  ];
+
+  var quizEl = document.getElementById("quiz");
+  var answered = 0, correct = 0;
+  function quizRender(){
+    answered = 0; correct = 0;
+    quizEl.innerHTML = QUIZ.map(function(item, qi){
+      var opts = item.opts.map(function(text, oi){
+        return '<button class="opt" data-q="'+qi+'" data-o="'+oi+'">' +
+          '<span class="mk">'+"ABCD".charAt(oi)+'</span><span class="tx">'+text+'</span></button>';
+      }).join("");
+      return '<div class="q" id="q'+qi+'">' +
+        '<div class="q-top"><span class="q-n">Q'+(qi+1)+'</span>' +
+        '<span class="q-sec">'+item.sec+'</span>' +
+        '<p class="q-text">'+item.q+'</p></div>' +
+        (item.code ? '<pre class="code">'+item.code+'</pre>' : "") +
+        '<div class="opts">'+opts+'</div>' +
+        '<p class="q-exp">'+item.exp+'</p></div>';
+    }).join("");
+    quizEl.querySelectorAll(".opt").forEach(function(b){
+      b.addEventListener("click", function(){ quizAnswer(b); });
+    });
+    quizScore();
+    document.getElementById("qResult").className = "result";
+  }
+  function quizAnswer(btn){
+    var qi = +btn.getAttribute("data-q"), oi = +btn.getAttribute("data-o");
+    var card = document.getElementById("q"+qi);
+    if (card.classList.contains("answered")) return;
+    var right = QUIZ[qi].a;
+    card.classList.add("answered", oi === right ? "ok" : "no");
+    card.querySelectorAll(".opt").forEach(function(o){
+      var i = +o.getAttribute("data-o");
+      o.disabled = true;
+      if (i === right) o.classList.add("correct");
+      else if (i === oi) o.classList.add("wrong");
+    });
+    answered++; if (oi === right) correct++;
+    quizScore();
+  }
+  function quizScore(){
+    document.getElementById("qAnswered").textContent = answered;
+    document.getElementById("qTotal").textContent = QUIZ.length;
+    document.getElementById("qCorrect").textContent = correct;
+    document.getElementById("qBar").style.width = Math.round((answered/QUIZ.length)*100) + "%";
+    if (answered < QUIZ.length) return;
+    var pct = correct / QUIZ.length;
+    var r = document.getElementById("qResult");
+    var h = document.getElementById("qResultH");
+    var p = document.getElementById("qResultP");
+    if (pct >= 0.85) { r.className = "result show good";
+      h.textContent = correct + " / " + QUIZ.length + " — chain mastered";
+      p.innerHTML = "You are ready for the next lesson. Keep the Book constructor from &sect;1 — the lesson says you will revisit it in the next project. &sect;9 below is still worth a skim."; }
+    else if (pct >= 0.6) { r.className = "result show mid";
+      h.textContent = correct + " / " + QUIZ.length + " — solid, with gaps";
+      p.innerHTML = "Check the section tag on each one you missed. Missed Q7, Q12 or Q13? Go straight to <b>&sect;9 Sticking points</b> below — it exists for exactly those three."; }
+    else { r.className = "result show low";
+      h.textContent = correct + " / " + QUIZ.length + " — worth another pass";
+      p.innerHTML = "Start with <b>&sect;9 Sticking points</b> below, then come back. After that, the &sect;3 chain visualiser — most of this lesson follows from understanding that one traversal."; }
+    r.scrollIntoView({ behavior: RM ? "auto" : "smooth", block:"nearest" });
+  }
+  document.getElementById("qReset").addEventListener("click", quizRender);
+
+  /* ---------------- §7 sticking points ---------------- */
+  var RUNGS = [
+    { t:"player1  — the object itself",
+      d:"An ordinary object with its OWN properties: name, marker, sayName.",
+      n:"Object.getPrototypeOf(player1) → Player.prototype  (there IS a next one)" },
+    { t:"Player.prototype  — shared by every Player",
+      d:"One object, shared by player1, player2 and every Player ever made.",
+      n:"Object.getPrototypeOf(Player.prototype) → Object.prototype  (still a next one)" },
+    { t:"Object.prototype  — the last real object",
+      d:"Where valueOf, toString and hasOwnProperty actually live.",
+      n:"Object.getPrototypeOf(Object.prototype) → null  (no next one)" },
+    { t:"null  — not an object at all",
+      d:"This is a full stop. There is nothing here to search.",
+      n:"The search stops and gives back undefined — \"nobody had it\"." }
+  ];
+  document.querySelectorAll("[data-rung]").forEach(function(b){
+    b.addEventListener("click", function(){
+      var i = +b.getAttribute("data-rung");
+      document.querySelectorAll("[data-rung]").forEach(function(o){
+        o.setAttribute("aria-pressed", String(o === b));
+      });
+      var r = RUNGS[i];
+      log("cr", "position " + i, r.t, i === 3 ? "undef" : "out");
+      note("cr", r.d);
+      step("cr", r.n);
+    });
+  });
+
+  var sleeper = { sleep: function(){ return this.name + " sleeps"; } };
+  var rabbit = { name:"Rabbit" }, hare = { name:"Hare" };
+  Object.setPrototypeOf(rabbit, sleeper);
+  Object.setPrototypeOf(hare, sleeper);
+  document.querySelectorAll("[data-m]").forEach(function(b){
+    b.addEventListener("click", function(){
+      var k = b.getAttribute("data-m");
+      var obj = k === "rabbit" ? rabbit : hare;
+      document.getElementById("bRabbit").classList.toggle("found", k === "rabbit");
+      document.getElementById("bHare").classList.toggle("found", k === "hare");
+      document.getElementById("pkSleep").classList.add("hit");
+      log("cm", k + ".sleep()", '"' + obj.sleep() + '"');
+      note("cm", "Same one function ran. this = " + k + ", because " + k + " is left of the dot.");
+    });
+  });
+
+  var W_STEPS = [
+    { label:'Hero.call(this, "Bjorn", 1)',
+      run:function(){
+        wState.name = "Bjorn"; wState.level = 1;
+        log("cw", 'Hero.call(this, "Bjorn", 1)');
+        note("cw", "Ran Hero's BODY. name and level are now hero1's OWN properties — copied.");
+      } },
+    { label:"hero1.attack()",
+      run:function(){
+        log("cw", "hero1.attack()", '"Bjorn attacks with the axe."');
+        note("cw", "Works — attack is on Warrior.prototype, which hero1 is already linked to.");
+      } },
+    { label:"hero1.greet()",
+      run:function(){
+        log("cw", "hero1.greet()", "TypeError: hero1.greet is not a function", "undef");
+        note("cw", "greet was never in Hero's body — it was added to Hero.prototype separately. call() never saw it.");
+      } },
+    { label:"Object.setPrototypeOf(Warrior.prototype, Hero.prototype)",
+      run:function(){
+        wState.linked = true;
+        log("cw", "Object.setPrototypeOf(Warrior.prototype, Hero.prototype)");
+        note("cw", "NOW a link exists. Nothing was copied — lookups can just walk further.");
+      } },
+    { label:"hero1.greet()   // again",
+      run:function(){
+        log("cw", "hero1.greet()", '"Bjorn says hello."');
+        note("cw", "Same object, same call. The only thing that changed is that the chain now reaches Hero.prototype.");
+      } }
+  ];
+  var wState = { at:0, name:null, level:null, linked:false };
+  function wPaint(){
+    var rows = [];
+    if (wState.name) { rows.push(["name", '"' + wState.name + '"']); rows.push(["level", wState.level]); }
+    rows.push(["weapon", '"axe"']);
+    document.getElementById("wBody").innerHTML = rows.map(function(r){
+      return '<div class="pk"><span class="pn">'+r[0]+'</span><span class="pv">'+esc(r[1])+'</span></div>';
+    }).join("");
+    var lb = document.getElementById("wLink");
+    lb.classList.toggle("on", wState.linked);
+    lb.textContent = wState.linked
+      ? "↓ linked — lookups continue into Hero.prototype ↓"
+      : "no link to Hero.prototype yet";
+    document.getElementById("wSteps").innerHTML = W_STEPS.map(function(s, i){
+      var cls = i < wState.at ? " done" : (i === wState.at ? " next" : "");
+      return '<button class="stepbtn'+cls+'" data-w="'+i+'"'+(i === wState.at ? "" : " disabled")+'>' +
+        '<span class="num">'+(i+1)+'</span><span>'+esc(s.label)+'</span></button>';
+    }).join("");
+    document.querySelectorAll("[data-w]").forEach(function(b){
+      b.addEventListener("click", function(){
+        var i = +b.getAttribute("data-w");
+        if (i !== wState.at) return;
+        W_STEPS[i].run();
+        wState.at++;
+        wPaint();
+      });
+    });
+  }
+  document.getElementById("wReset").addEventListener("click", function(){
+    wState = { at:0, name:null, level:null, linked:false };
+    document.getElementById("cw").innerHTML = "";
+    wPaint();
+    note("cw", "Follow the five steps in order.");
+  });
+
+  var WHY = [
+    { t:"1. Just repeat the lines",
+      code:'<span class="k">function</span> <span class="f">Warrior</span>(name, level, weapon) {\n  <span class="tok tok-this">this</span>.name = name;     <span class="c">// copied from Hero</span>\n  <span class="tok tok-this">this</span>.level = level;   <span class="c">// copied from Hero</span>\n  <span class="tok tok-this">this</span>.weapon = weapon;\n}',
+      res:'{ name: "Bjorn", level: 1, weapon: "axe" }', ok:true,
+      verdict:'It <b>works</b> \u2014 but every character type repeats the same two lines. Add <code>hitPoints</code> to Hero and you must edit Warrior, Healer, Thief\u2026 by hand. That duplication is the problem <code>call()</code> exists to solve.' },
+    { t:"2. new Hero(\u2026) inside",
+      code:'<span class="k">function</span> <span class="f">Warrior</span>(name, level, weapon) {\n  <span class="k">new</span> <span class="f">Hero</span>(name, level);   <span class="c">// ???</span>\n  <span class="tok tok-this">this</span>.weapon = weapon;\n}',
+      res:'{ weapon: "axe" }', ok:false,
+      verdict:'<b>No.</b> <code>new</code> makes a <b>brand new separate object</b>, sets name and level on <i>that</i>, and then throws it away. Our Warrior never receives anything.' },
+    { t:"3. Hero(\u2026) plainly",
+      code:'<span class="k">function</span> <span class="f">Warrior</span>(name, level, weapon) {\n  <span class="f">Hero</span>(name, level);       <span class="c">// no new, no call</span>\n  <span class="tok tok-this">this</span>.weapon = weapon;\n}',
+      res:'{ weapon: "axe" }   // or a TypeError', ok:false,
+      verdict:'<b>No.</b> This is exactly \u00a76 situation 2 \u2014 a <b>simple function call</b>. Inside Hero, <code>this</code> is <code>undefined</code> (strict) or the global object. Either way it is <b>not our Warrior</b>.' },
+    { t:"4. Hero.call(this, \u2026)",
+      code:'<span class="k">function</span> <span class="f">Warrior</span>(name, level, weapon) {\n  Hero.<span class="f">call</span>(<span class="tok tok-this lit">this</span>, name, level);\n  <span class="tok tok-this">this</span>.weapon = weapon;\n}',
+      res:'{ name: "Bjorn", level: 1, weapon: "axe" }', ok:true,
+      verdict:'<b>Yes.</b> <code>.call()</code> runs Hero\u2019s body but lets us <b>choose what <code>this</code> will be</b> \u2014 and we pass <code>this</code>, meaning the Warrior currently being built. Hero\u2019s two lines land on <b>our</b> object. No duplication.' }
+  ];
+  function whyPaint(i){
+    var w = WHY[i];
+    document.getElementById("whyPanel").innerHTML =
+      "<h5>" + w.t + "</h5>" +
+      '<pre class="code">' + w.code + "</pre>" +
+      '<p style="margin:12px 0 0;font-family:\'IBM Plex Mono\',monospace;font-size:.82rem;color:var(--ink-2)">' +
+        'new Warrior("Bjorn", 1, "axe")  \u2192  <span style="color:var(--' + (w.ok ? "proc" : "this") + ')">' +
+        esc(w.res) + "</span></p>" +
+      '<p class="pit" style="border-left-color:var(--' + (w.ok ? "proc" : "this") + ')">' + w.verdict + "</p>";
+    document.querySelectorAll("[data-why]").forEach(function(b){
+      b.setAttribute("aria-pressed", String(+b.getAttribute("data-why") === i));
+    });
+  }
+  document.querySelectorAll("[data-why]").forEach(function(b){
+    b.addEventListener("click", function(){ whyPaint(+b.getAttribute("data-why")); });
+  });
+
+  var READERS = [
+    { obj:'{ name: "Alice" }', out:'"I am Alice"', k:"out",
+      n:"this = alice, so this.name filled the blank with \"Alice\"." },
+    { obj:'{ name: "Bob" }', out:'"I am Bob"', k:"out",
+      n:"Same card, different reader. The function itself never changed." },
+    { obj:'{ make: "Volkswagen", model: "Golf" }', out:'"I am undefined"', k:"undef",
+      n:"The car has no .name property, so the blank came back undefined. call() does not check." }
+  ];
+  document.querySelectorAll("[data-rdr]").forEach(function(b){
+    b.addEventListener("click", function(){
+      var i = +b.getAttribute("data-rdr"), r = READERS[i];
+      document.querySelectorAll("[data-rdr]").forEach(function(o){
+        o.setAttribute("aria-pressed", String(o === b));
+      });
+      log("cc", "introduce.call(" + r.obj + ")", r.out, r.k);
+      note("cc", r.n);
+    });
+  });
+
+  /* ---------------- boot ---------------- */
+  i1Paint(player1, "player1");
+  chainPaint();
+  sitPaint(0);
+  quizRender();
+  note("c1", "Press a button to see what each call does.");
+  note("c2", "player1 and player2 already exist, created with new Player(...).");
+  note("c3", "Pick a lookup — the chain is walked one level at a time.");
+  s4Reset();
+  note("cb", "The lesson leaves this as an exercise. Try it yourself first.");
+  whyPaint(0);
+  note("cc", "Pick a reader above.");
+  note("cr", "Click a position above.");
+  note("cm", "Press a button \u2014 watch which name comes back.");
+  wPaint();
+  note("cw", "Follow the five steps in order.");
+})();
+</script>
